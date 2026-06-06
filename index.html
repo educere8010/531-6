@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>531 Project 6 - 에듀케레 영수학원</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #1a2744; line-height: 1.7; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 280px; background: linear-gradient(180deg, #1a2744 0%, #0f1a30 100%); color: #fff; padding: 30px 20px; position: fixed; height: 100vh; overflow-y: auto; box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
+  .sidebar h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: #c8a84b; margin-bottom: 4px; font-weight: 900; letter-spacing: 1px; }
+  .sidebar .academy { font-size: 14px; color: #c8a84b; margin-bottom: 6px; font-weight: 500; }
+  .sidebar .subtitle { font-size: 12px; color: #aab; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(200, 168, 75, 0.3); }
+  .sidebar .nav-title { font-size: 13px; color: #c8a84b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; font-weight: 700; }
+  .sidebar ul { list-style: none; }
+  .sidebar li { padding: 14px 18px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: all 0.25s; font-size: 14px; border-left: 3px solid transparent; }
+  .sidebar li:hover { background: rgba(200, 168, 75, 0.1); border-left-color: #c8a84b; }
+  .sidebar li.active { background: rgba(200, 168, 75, 0.2); border-left-color: #c8a84b; color: #c8a84b; font-weight: 700; }
+  .sidebar li .num { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; background: #c8a84b; color: #1a2744; border-radius: 50%; font-weight: 900; margin-right: 10px; font-size: 13px; }
+  .main { margin-left: 280px; flex: 1; padding: 40px 50px; max-width: 1100px; }
+  .passage { display: none; }
+  .passage.active { display: block; }
+  .passage-header { border-bottom: 3px solid #c8a84b; padding-bottom: 20px; margin-bottom: 30px; }
+  .passage-header .label { display: inline-block; background: #1a2744; color: #c8a84b; padding: 6px 16px; border-radius: 20px; font-size: 12px; letter-spacing: 2px; font-weight: 700; margin-bottom: 10px; }
+  .passage-header h2 { font-family: 'Playfair Display', serif; font-size: 32px; color: #1a2744; font-weight: 900; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 30px; border-bottom: 2px solid #e0e0d8; }
+  .tab { padding: 12px 20px; background: transparent; border: none; cursor: pointer; font-size: 14px; color: #666; font-weight: 500; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; font-family: 'Noto Sans KR', sans-serif; }
+  .tab:hover { color: #1a2744; }
+  .tab.active { color: #1a2744; border-bottom-color: #c8a84b; font-weight: 700; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.4s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .full-passage { font-family: 'EB Garamond', serif; font-size: 17pt; line-height: 1.8; color: #2a2a2a; padding: 35px 40px; background: #fff; border: 1px solid #e0e0d8; border-left: 6px solid #1a2744; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .full-passage .circ { color: #c8a84b; font-weight: 700; margin-right: 4px; }
+  .sentence-block { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px dashed #d0d0c8; }
+  .sentence-block:last-child { border-bottom: none; }
+  .sent-num { display: inline-block; background: #1a2744; color: #c8a84b; width: 32px; height: 32px; line-height: 32px; text-align: center; border-radius: 50%; font-weight: 900; margin-right: 12px; font-size: 15px; vertical-align: middle; }
+  .eng-box { font-family: 'EB Garamond', serif; font-size: 17pt; background: #fff; border: 1px solid #d0d0c8; border-left: 5px solid #2e75b6; padding: 18px 22px; margin: 12px 0; border-radius: 3px; line-height: 1.6; color: #1a2744; }
+  .slash-reading { background: #fff8e7; padding: 14px 18px; border-radius: 4px; margin: 10px 0; font-size: 15px; line-height: 1.9; }
+  .slash-reading .eng-chunk { font-family: 'EB Garamond', serif; color: #1a2744; font-weight: 500; }
+  .slash-reading .slash { color: #c8a84b; font-weight: 700; margin: 0 4px; }
+  .direct-trans { background: #f0f4fa; padding: 12px 18px; border-radius: 4px; margin: 10px 0; font-size: 15px; color: #1a2744; line-height: 1.7; }
+  .direct-trans b { color: #2e75b6; margin-right: 8px; }
+  .grammar-list { margin-top: 12px; padding: 14px 20px; background: #fff2cc; border-radius: 4px; border-left: 4px solid #c8a84b; }
+  .grammar-list .g-item { margin: 8px 0; font-size: 14px; color: #5a4500; line-height: 1.7; }
+  .grammar-list .g-item .diamond { color: #c8a84b; font-weight: 700; }
+  .grammar-list .g-item .triangle { color: #1a2744; }
+  .grammar-list .g-item .star { color: #c8302c; font-weight: 700; }
+  .vocab-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .vocab-item { background: #fff; border: 1px solid #e0e0d8; border-left: 4px solid #375623; border-radius: 4px; padding: 16px 22px; display: grid; grid-template-columns: 1.5fr 2fr 0.6fr 2fr; gap: 18px; align-items: center; font-size: 14px; }
+  .vocab-item .word { font-family: 'EB Garamond', serif; font-size: 18pt; font-weight: 700; color: #1a2744; }
+  .vocab-item .meaning { color: #1a2744; font-weight: 500; }
+  .vocab-item .pos { background: #e2efda; color: #375623; padding: 4px 10px; border-radius: 12px; text-align: center; font-size: 12px; font-weight: 700; }
+  .vocab-item .deriv { color: #666; font-size: 13px; font-style: italic; font-family: 'EB Garamond', serif; }
+  .translation-box { background: #fff; padding: 30px 35px; border: 1px solid #e0e0d8; border-radius: 6px; font-size: 16px; line-height: 2; color: #2a2a2a; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .theme-card { background: #fff; padding: 25px 30px; border-radius: 6px; margin-bottom: 20px; border-top: 4px solid #c8a84b; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .theme-card .label { color: #c8a84b; font-weight: 700; font-size: 13px; letter-spacing: 2px; margin-bottom: 10px; }
+  .theme-card .content { font-size: 16px; color: #1a2744; line-height: 1.8; }
+  .structure-flow { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
+  .structure-flow .step { flex: 1; min-width: 200px; background: #f0f4fa; padding: 16px 20px; border-radius: 6px; border-left: 4px solid #2e75b6; font-size: 14px; }
+  .structure-flow .step b { color: #1a2744; display: block; margin-bottom: 6px; }
+  .bg-card { background: #fff; padding: 28px 32px; border-radius: 6px; margin-bottom: 20px; border-left: 5px solid #2e75b6; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .bg-card h4 { color: #1a2744; font-size: 17px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e0e0d8; }
+  .bg-card p { font-size: 15px; line-height: 1.9; color: #2a2a2a; }
+  .quiz-block { background: #fff; padding: 25px 30px; border-radius: 6px; margin-bottom: 25px; border: 1px solid #e0e0d8; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .quiz-q { font-size: 16px; font-weight: 700; color: #1a2744; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #c8a84b; }
+  .quiz-q .qnum { display: inline-block; background: #1a2744; color: #c8a84b; padding: 4px 12px; border-radius: 12px; font-size: 13px; margin-right: 10px; }
+  .quiz-passage { background: #f8f8f3; padding: 16px 20px; border-radius: 4px; margin-bottom: 16px; font-family: 'EB Garamond', serif; font-size: 15pt; line-height: 1.7; color: #2a2a2a; border-left: 4px solid #2e75b6; }
+  .quiz-choice { display: block; padding: 12px 18px; margin: 8px 0; background: #f8f8f3; border: 2px solid transparent; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 15px; color: #2a2a2a; text-align: left; width: 100%; font-family: 'Noto Sans KR', sans-serif; }
+  .quiz-choice:hover { background: #fff; border-color: #c8a84b; }
+  .quiz-choice.correct { background: #e2efda; border-color: #375623; color: #375623; font-weight: 700; }
+  .quiz-choice.wrong { background: #fde7e6; border-color: #c8302c; color: #c8302c; }
+  .quiz-choice .opt-num { display: inline-block; width: 24px; height: 24px; line-height: 22px; text-align: center; border: 1.5px solid #1a2744; border-radius: 50%; margin-right: 10px; font-weight: 700; font-size: 12px; }
+  .quiz-feedback { margin-top: 14px; padding: 14px 18px; border-radius: 4px; font-size: 14px; display: none; line-height: 1.7; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #e2efda; color: #375623; border-left: 4px solid #375623; }
+  .quiz-feedback.wrong { background: #fde7e6; color: #7a1c19; border-left: 4px solid #c8302c; }
+  .reset-btn { margin-top: 10px; padding: 6px 14px; background: transparent; border: 1px solid #1a2744; color: #1a2744; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Noto Sans KR', sans-serif; }
+  .reset-btn:hover { background: #1a2744; color: #fff; }
+  .essay-block { background: #fff; padding: 25px 30px; border-radius: 6px; margin-bottom: 25px; border: 1px solid #e0e0d8; border-top: 4px solid #c8a84b; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .essay-block .cond { background: #fff2cc; padding: 10px 14px; border-radius: 4px; font-size: 13px; color: #7f6000; margin: 12px 0; border-left: 3px solid #c8a84b; }
+  .essay-block textarea { width: 100%; min-height: 100px; padding: 14px; border: 1.5px solid #e0e0d8; border-radius: 6px; font-size: 15px; font-family: 'EB Garamond', 'Noto Sans KR', serif; resize: vertical; line-height: 1.7; }
+  .essay-block textarea:focus { outline: none; border-color: #c8a84b; }
+  .toggle-ans { margin-top: 12px; padding: 8px 18px; background: #1a2744; color: #c8a84b; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; }
+  .toggle-ans:hover { background: #0f1a30; }
+  .model-ans { margin-top: 14px; padding: 16px 20px; background: #e2efda; border-left: 4px solid #375623; border-radius: 4px; display: none; font-size: 14px; line-height: 1.8; color: #1a3a1a; }
+  .model-ans.show { display: block; }
+  .model-ans b { color: #375623; }
+  .cover { text-align: center; padding: 80px 40px 40px; background: linear-gradient(135deg, #1a2744 0%, #0f1a30 100%); color: #fff; border-radius: 10px; margin-bottom: 40px; }
+  .cover .academy-cover { color: #c8a84b; font-size: 18px; letter-spacing: 8px; margin-bottom: 20px; font-weight: 500; }
+  .cover h1 { font-family: 'Playfair Display', serif; font-size: 56px; color: #c8a84b; margin-bottom: 16px; font-weight: 900; letter-spacing: 3px; }
+  .cover .tagline { font-size: 16px; color: #fff; margin-bottom: 30px; opacity: 0.9; }
+  .cover .info { display: inline-block; padding: 12px 30px; border: 1px solid rgba(200, 168, 75, 0.5); border-radius: 30px; font-size: 14px; color: #c8a84b; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>531 PROJECT</h1>
+    <div class="academy">에듀케레 영수학원</div>
+    <div class="subtitle">Reading Analysis · Vol. 6</div>
+    <div class="nav-title">Passages</div>
+    <ul>
+      <li class="active" onclick="showPassage(1)"><span class="num">1</span>Marriage</li>
+      <li onclick="showPassage(2)"><span class="num">2</span>Body Gloss</li>
+      <li onclick="showPassage(3)"><span class="num">3</span>Fluoride</li>
+      <li onclick="showPassage(4)"><span class="num">4</span>Experiments</li>
+    </ul>
+  </aside>
+  <main class="main">
+    <div class="cover">
+      <div class="academy-cover">에듀케레 영수학원</div>
+      <h1>531 PROJECT 6</h1>
+      <div class="tagline">English Reading Analysis · 4 Passages</div>
+      <div class="info">Interactive Workbook for High School Students</div>
+    </div>
+
+    <!-- ============ PASSAGE 1 ============ -->
+    <section class="passage active" id="p1">
+      <div class="passage-header">
+        <div class="label">PASSAGE 6-1</div>
+        <h2>Marriage Beyond Feelings</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="showTab(1,'a')">① 전문</button>
+        <button class="tab" onclick="showTab(1,'b')">② 문장분석</button>
+        <button class="tab" onclick="showTab(1,'c')">③ 핵심단어</button>
+        <button class="tab" onclick="showTab(1,'d')">④ 전문해석</button>
+        <button class="tab" onclick="showTab(1,'e')">⑤ 주제·요지</button>
+        <button class="tab" onclick="showTab(1,'f')">⑥ 배경지식</button>
+        <button class="tab" onclick="showTab(1,'g')">⑦ 변형문제</button>
+      </div>
+
+      <!-- 전문 -->
+      <div class="tab-content active" id="t1a">
+        <div class="full-passage">
+          <span class="circ">①</span> When a young man commits himself to a woman in the Sacrament of Marriage, he makes a vow to love her regardless of his feelings.
+          <span class="circ">②</span> What does this mean?
+          <span class="circ">③</span> As time passes and the trials of life weigh down, the couple may not feel the sentiments of love.
+          <span class="circ">④</span> Because many people have a wrong understanding of love, they feel justified to leave the marriage and look for those same feelings in another person.
+          <span class="circ">⑤</span> This makes sense if we reduce love to mere feelings.
+          <span class="circ">⑥</span> True marital love, however, understands that the commitment transcends subjective feelings.
+          <span class="circ">⑦</span> The feelings may have been necessary at the beginning of courtship, but if it evolves into true love, feelings become secondary.
+          <span class="circ">⑧</span> Marriage is about a choice to commit one&#39;s life to another for their well-being regardless of emotions.
+        </div>
+      </div>
+
+      <!-- 문장분석 -->
+      <div class="tab-content" id="t1b">
+        <div class="full-passage" style="margin-bottom:30px;">
+          <span class="circ">①</span> When a young man commits himself to a woman in the Sacrament of Marriage, he makes a vow to love her regardless of his feelings.
+          <span class="circ">②</span> What does this mean?
+          <span class="circ">③</span> As time passes and the trials of life weigh down, the couple may not feel the sentiments of love.
+          <span class="circ">④</span> Because many people have a wrong understanding of love, they feel justified to leave the marriage and look for those same feelings in another person.
+          <span class="circ">⑤</span> This makes sense if we reduce love to mere feelings.
+          <span class="circ">⑥</span> True marital love, however, understands that the commitment transcends subjective feelings.
+          <span class="circ">⑦</span> The feelings may have been necessary at the beginning of courtship, but if it evolves into true love, feelings become secondary.
+          <span class="circ">⑧</span> Marriage is about a choice to commit one&#39;s life to another for their well-being regardless of emotions.
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">①</span></div>
+          <div class="eng-box">When a young man commits himself to a woman in the Sacrament of Marriage, he makes a vow to love her regardless of his feelings.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">When a young man commits himself to a woman</span> <span class="slash">/</span> <span class="eng-chunk">in the Sacrament of Marriage,</span> <span class="slash">/</span> <span class="eng-chunk">he makes a vow</span> <span class="slash">/</span> <span class="eng-chunk">to love her</span> <span class="slash">/</span> <span class="eng-chunk">regardless of his feelings.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 한 젊은 남자가 한 여자에게 자신을 헌신할 때 / 결혼 성사 안에서 / 그는 서약을 한다 / 그녀를 사랑하기로 / 자기 감정과 상관없이.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>시간 부사절 When + S + V</b> <span class="triangle">▶</span> <u>When</u> a young man commits himself... <span class="star">★</span> 종속절(When~) + 주절(he makes~) 구조 출제</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>commit oneself to + 명사 (~에 헌신하다)</b> <span class="triangle">▶</span> commits <u>himself</u> to a woman <span class="star">★</span> 재귀목적어 + to (전치사) 뒤 명사/동명사; commit to V(원형) 아님</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>to부정사 형용사적 용법</b> <span class="triangle">▶</span> a vow <u>to love</u> her (~하겠다는 서약) <span class="star">★</span> 명사 + to부정사 (수식, 동격적 의미)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>전치사구 regardless of (~에 상관없이)</b> <span class="triangle">▶</span> <u>regardless of</u> his feelings <span class="star">★</span> regardless of + 명사; regardless 단독 사용 안 됨</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">②</span></div>
+          <div class="eng-box">What does this mean?</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">What does this mean?</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 이것은 무엇을 의미하는가?</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>의문사 What + 조동사 do 어순</b> <span class="triangle">▶</span> <u>What does</u> this mean? <span class="star">★</span> 일반동사 의문문에서 What이 목적어인 경우의 어순</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>수사의문문 (Rhetorical Question)</b> <span class="triangle">▶</span> 독자에게 다음 내용에 주목하게 하는 장치 <span class="star">★</span> 글의 도입부에서 화제를 환기시키는 기능</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">③</span></div>
+          <div class="eng-box">As time passes and the trials of life weigh down, the couple may not feel the sentiments of love.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">As time passes</span> <span class="slash">/</span> <span class="eng-chunk">and the trials of life weigh down,</span> <span class="slash">/</span> <span class="eng-chunk">the couple may not feel</span> <span class="slash">/</span> <span class="eng-chunk">the sentiments of love.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 시간이 흐르면서 / 그리고 인생의 시련들이 짓누름에 따라 / 부부는 느끼지 못할 수도 있다 / 사랑의 감정들을.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>접속사 As (~함에 따라)</b> <span class="triangle">▶</span> <u>As</u> time passes <span class="star">★</span> As의 의미 구별 (시간/이유/비례/방식) 출제</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>부사절 내 두 동사의 병렬</b> <span class="triangle">▶</span> As time <u>passes</u> and the trials of life <u>weigh down</u> <span class="star">★</span> As + S+V and S+V 구조 (두 시간 절 병렬)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>구동사 weigh down (짓누르다)</b> <span class="triangle">▶</span> the trials of life <u>weigh down</u> <span class="star">★</span> 자동사로 쓰여 '무겁게 짓누르다, 부담을 주다'</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>조동사 may (추측)</b> <span class="triangle">▶</span> the couple <u>may not feel</u> <span class="star">★</span> may + not + 동사원형 (~하지 않을 수도 있다)</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">④</span></div>
+          <div class="eng-box">Because many people have a wrong understanding of love, they feel justified to leave the marriage and look for those same feelings in another person.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Because many people have a wrong understanding of love,</span> <span class="slash">/</span> <span class="eng-chunk">they feel justified</span> <span class="slash">/</span> <span class="eng-chunk">to leave the marriage</span> <span class="slash">/</span> <span class="eng-chunk">and look for those same feelings</span> <span class="slash">/</span> <span class="eng-chunk">in another person.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 많은 사람들이 사랑에 대한 잘못된 이해를 가지고 있기 때문에 / 그들은 정당하다고 느낀다 / 결혼을 떠나는 것이 / 그리고 그 똑같은 감정들을 찾는 것이 / 다른 사람에게서.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>이유 부사절 Because + S + V</b> <span class="triangle">▶</span> <u>Because</u> many people have... <span class="star">★</span> Because vs Because of(전치사) 구별; 뒤에 절/구 형태 차이</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>feel + 형용사 보어 (2형식)</b> <span class="triangle">▶</span> they feel <u>justified</u> <span class="star">★</span> feel + 형용사/p.p.; feel justified = 정당하다고 느끼다 (수동의 형용사화)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>to부정사의 병렬 (to leave ~ and look)</b> <span class="triangle">▶</span> to <u>leave</u> the marriage and <u>look for</u>... <span class="star">★</span> to + 동사원형의 병렬; 두 번째 to 생략 가능</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>구동사 look for (~을 찾다)</b> <span class="triangle">▶</span> <u>look for</u> those same feelings <span class="star">★</span> 타동사구로 목적어 직접 취함</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑤</span></div>
+          <div class="eng-box">This makes sense if we reduce love to mere feelings.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">This makes sense</span> <span class="slash">/</span> <span class="eng-chunk">if we reduce love</span> <span class="slash">/</span> <span class="eng-chunk">to mere feelings.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 이것은 말이 된다 / 만약 우리가 사랑을 축소한다면 / 단순한 감정들로.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>make sense (말이 되다, 이치에 맞다)</b> <span class="triangle">▶</span> This <u>makes sense</u> <span class="star">★</span> 관용 표현; make sense of(~을 이해하다)와 구별</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>reduce A to B (A를 B로 축소·환원하다)</b> <span class="triangle">▶</span> <u>reduce</u> love <u>to</u> mere feelings <span class="star">★</span> 자주 출제되는 어휘 구문; 전치사 to 고정</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>조건 부사절 if + 현재시제</b> <span class="triangle">▶</span> <u>if</u> we reduce... <span class="star">★</span> 단순 조건문에서 if절 동사는 현재시제</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑥</span></div>
+          <div class="eng-box">True marital love, however, understands that the commitment transcends subjective feelings.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">True marital love, however,</span> <span class="slash">/</span> <span class="eng-chunk">understands</span> <span class="slash">/</span> <span class="eng-chunk">that the commitment</span> <span class="slash">/</span> <span class="eng-chunk">transcends subjective feelings.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 진정한 결혼 사랑은, 그러나 / 이해한다 / 그 헌신이 / 주관적 감정들을 초월한다는 것을.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>however 삽입 (콤마 사이)</b> <span class="triangle">▶</span> True marital love, <u>however</u>, understands... <span class="star">★</span> 문장 중간에 삽입되어 대조 의미; 콤마로 분리 필수</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>that 명사절 (understand의 목적어)</b> <span class="triangle">▶</span> understands <u>that</u> the commitment transcends... <span class="star">★</span> 명사절 접속사 that; 인지·전달 동사의 목적어</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>타동사 transcend (~을 초월하다)</b> <span class="triangle">▶</span> <u>transcends</u> subjective feelings <span class="star">★</span> transcend + 목적어 (직접) — 전치사 불필요</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑦</span></div>
+          <div class="eng-box">The feelings may have been necessary at the beginning of courtship, but if it evolves into true love, feelings become secondary.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">The feelings may have been necessary</span> <span class="slash">/</span> <span class="eng-chunk">at the beginning of courtship,</span> <span class="slash">/</span> <span class="eng-chunk">but if it evolves into true love,</span> <span class="slash">/</span> <span class="eng-chunk">feelings become secondary.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 그 감정들은 필요했을지도 모른다 / 구애의 시작 단계에서 / 그러나 만약 그것이 진정한 사랑으로 발전한다면 / 감정들은 부차적이 된다.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>may have + p.p. (과거 추측)</b> <span class="triangle">▶</span> <u>may have been</u> necessary <span class="star">★</span> 과거 사실에 대한 약한 추측 (~이었을지 모른다); might/could have p.p.와 비교</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>evolve into + 명사 (~로 발전하다)</b> <span class="triangle">▶</span> if it <u>evolves into</u> true love <span class="star">★</span> 자동사 + 전치사 into (변화의 도달점)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>조건절 if (직설법 현재)</b> <span class="triangle">▶</span> <u>if</u> it evolves into true love, feelings become... <span class="star">★</span> 단순 조건 (가정법 아님); 양쪽 모두 현재시제</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>2형식 동사 become + 형용사</b> <span class="triangle">▶</span> feelings <u>become secondary</u> <span class="star">★</span> become/turn/grow + 형용사 보어 (상태 변화)</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑧</span></div>
+          <div class="eng-box">Marriage is about a choice to commit one&#39;s life to another for their well-being regardless of emotions.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Marriage is about a choice</span> <span class="slash">/</span> <span class="eng-chunk">to commit one&#39;s life to another</span> <span class="slash">/</span> <span class="eng-chunk">for their well-being</span> <span class="slash">/</span> <span class="eng-chunk">regardless of emotions.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 결혼은 하나의 선택에 관한 것이다 / 자신의 삶을 다른 사람에게 헌신하는 / 그 사람의 행복을 위해 / 감정과 상관없이.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>be about + 명사 (~에 관한 것이다)</b> <span class="triangle">▶</span> Marriage <u>is about</u> a choice... <span class="star">★</span> 본질·핵심을 정의하는 표현 (정의문에 자주 등장)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>to부정사 형용사적 용법</b> <span class="triangle">▶</span> a choice <u>to commit</u> (~하는 선택) <span class="star">★</span> 명사 + to부정사 (동격·수식)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>commit A to B (A를 B에 바치다)</b> <span class="triangle">▶</span> <u>commit</u> one&#39;s life <u>to</u> another <span class="star">★</span> 타동사로 쓰일 때 commit + 목적어 + to + 대상</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>regardless of 반복 (주제 강조)</b> <span class="triangle">▶</span> ①번 문장과 같은 표현을 결론부에 재사용 <span class="star">★</span> 글의 핵심 주제어 반복 → 글의 주제 추론 단서</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 핵심단어 -->
+      <div class="tab-content" id="t1c">
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="word">commit oneself to</div><div class="meaning">~에 헌신하다, 자신을 바치다</div><div class="pos">phr.</div><div class="deriv">commitment (n.), committed (adj.)</div></div>
+          <div class="vocab-item"><div class="word">sacrament</div><div class="meaning">성사, 신성한 종교 의식</div><div class="pos">n.</div><div class="deriv">sacramental (adj.)</div></div>
+          <div class="vocab-item"><div class="word">vow</div><div class="meaning">서약, 맹세</div><div class="pos">n./v.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">regardless of</div><div class="meaning">~에 상관없이</div><div class="pos">prep.</div><div class="deriv">regard (v./n.)</div></div>
+          <div class="vocab-item"><div class="word">trial</div><div class="meaning">시련, 시험</div><div class="pos">n.</div><div class="deriv">try (v.)</div></div>
+          <div class="vocab-item"><div class="word">weigh down</div><div class="meaning">짓누르다, 부담을 주다</div><div class="pos">phr.v.</div><div class="deriv">weight (n.)</div></div>
+          <div class="vocab-item"><div class="word">sentiment</div><div class="meaning">감정, 정서</div><div class="pos">n.</div><div class="deriv">sentimental (adj.)</div></div>
+          <div class="vocab-item"><div class="word">justified</div><div class="meaning">정당화되는, 정당한</div><div class="pos">adj.</div><div class="deriv">justify (v.), justification (n.)</div></div>
+          <div class="vocab-item"><div class="word">reduce A to B</div><div class="meaning">A를 B로 축소·환원하다</div><div class="pos">phr.</div><div class="deriv">reduction (n.)</div></div>
+          <div class="vocab-item"><div class="word">mere</div><div class="meaning">단지 ~에 불과한</div><div class="pos">adj.</div><div class="deriv">merely (adv.)</div></div>
+          <div class="vocab-item"><div class="word">marital</div><div class="meaning">결혼의, 부부의</div><div class="pos">adj.</div><div class="deriv">marriage (n.), marry (v.)</div></div>
+          <div class="vocab-item"><div class="word">commitment</div><div class="meaning">헌신, 약속</div><div class="pos">n.</div><div class="deriv">commit (v.), committed (adj.)</div></div>
+          <div class="vocab-item"><div class="word">transcend</div><div class="meaning">초월하다, 넘어서다</div><div class="pos">v.</div><div class="deriv">transcendent (adj.), transcendence (n.)</div></div>
+          <div class="vocab-item"><div class="word">subjective</div><div class="meaning">주관적인</div><div class="pos">adj.</div><div class="deriv">subject (n.), subjectivity (n.) ↔ objective</div></div>
+          <div class="vocab-item"><div class="word">courtship</div><div class="meaning">구애, 연애 (기간)</div><div class="pos">n.</div><div class="deriv">court (v.)</div></div>
+          <div class="vocab-item"><div class="word">evolve into</div><div class="meaning">~로 발전하다, 진화하다</div><div class="pos">phr.v.</div><div class="deriv">evolution (n.), evolutionary (adj.)</div></div>
+          <div class="vocab-item"><div class="word">secondary</div><div class="meaning">부차적인, 이차적인</div><div class="pos">adj.</div><div class="deriv">second (n./adj.) ↔ primary</div></div>
+          <div class="vocab-item"><div class="word">well-being</div><div class="meaning">행복, 안녕</div><div class="pos">n.</div><div class="deriv">—</div></div>
+        </div>
+      </div>
+
+      <!-- 전문해석 -->
+      <div class="tab-content" id="t1d">
+        <div class="translation-box">
+          한 젊은 남자가 결혼 성사 안에서 한 여자에게 자신을 헌신할 때, 그는 자기 감정과 상관없이 그녀를 사랑하겠다는 서약을 한다. 이것은 무슨 의미인가? 시간이 흐르고 인생의 시련이 짓누르면서, 부부는 사랑의 감정을 느끼지 못할 수도 있다. 많은 사람들이 사랑에 대해 잘못 이해하고 있기 때문에, 그들은 결혼을 떠나 다른 사람에게서 그 동일한 감정을 찾는 것을 정당하다고 느낀다. 이는 우리가 사랑을 단순한 감정으로 축소시킨다면 말이 되는 일이다. 그러나 진정한 결혼 사랑은 그 헌신이 주관적 감정을 초월한다는 것을 이해한다. 감정은 구애의 초기에는 필요했을지 모르지만, 그것이 진정한 사랑으로 발전한다면 감정은 부차적인 것이 된다. 결혼은 감정과 상관없이 상대방의 행복을 위해 자신의 삶을 다른 사람에게 헌신하기로 하는 선택에 관한 것이다.
+        </div>
+      </div>
+
+      <!-- 주제·요지 -->
+      <div class="tab-content" id="t1e">
+        <div class="theme-card">
+          <div class="label">THEME · 주제</div>
+          <div class="content">감정을 넘어선 헌신으로서의 진정한 결혼 사랑</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">MAIN IDEA · 요지</div>
+          <div class="content">결혼 사랑은 일시적인 감정에 좌우되는 것이 아니라, 상대방의 행복을 위해 자신을 헌신하기로 하는 의지적 선택이며, 진정한 사랑이 발전하면 감정은 부차적인 것이 된다.</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">STRUCTURE · 구조 흐름</div>
+          <div class="structure-flow">
+            <div class="step"><b>도입 (①~②)</b>결혼 서약: 감정과 무관한 사랑의 약속</div>
+            <div class="step"><b>문제 제기 (③~⑤)</b>감정의 변화 → 사랑을 감정으로만 축소하면 결혼 이탈이 정당해 보임</div>
+            <div class="step"><b>반론 (⑥~⑦)</b>진정한 결혼 사랑은 감정을 초월; 감정은 부차적</div>
+            <div class="step"><b>결론 (⑧)</b>결혼의 본질 = 상대의 행복을 위한 의지적 선택</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 배경지식 -->
+      <div class="tab-content" id="t1f">
+        <div class="bg-card">
+          <h4>💒 Sacrament(성사)의 의미</h4>
+          <p>가톨릭 신학에서 성사(sacrament)는 신의 은총을 전달하는 신성한 의식으로, 결혼은 7성사(세례·견진·성체·고해·병자·성품·혼인) 중 하나로 여겨진다. 이는 결혼을 단순한 사회적 계약이 아니라 평생의 헌신을 다짐하는 거룩한 약속으로 보는 관점이다. 본문이 'Sacrament of Marriage'라는 표현을 사용하는 것은 결혼의 종교적·도덕적 무게를 강조하기 위함이며, 이러한 관점에서는 결혼 서약을 감정에 따라 깰 수 없는 절대적 약속으로 본다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>❤️ 사랑의 세 가지 유형 (Three Forms of Love)</h4>
+          <p>고대 그리스인들은 사랑을 여러 종류로 구분했다. ① <b>Eros</b>(에로스)는 열정적·낭만적 사랑으로, 감정과 매력에 기반한다. ② <b>Philia</b>(필리아)는 우정과 동료애에 기초한 사랑이다. ③ <b>Agape</b>(아가페)는 무조건적·헌신적 사랑으로, 상대의 행복을 위해 자신을 내어주는 의지적 사랑이다. 본문이 말하는 '진정한 결혼 사랑'은 에로스에서 시작해 아가페로 발전하는 사랑이다. 처음에는 끌림과 감정(에로스)이 중요하지만, 시간이 지나면 헌신(아가페)이 그 자리를 차지하게 된다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🧠 감정 vs 의지 — 사랑의 본질 논쟁</h4>
+          <p>현대 심리학자 에리히 프롬(Erich Fromm)은 『사랑의 기술』(1956)에서 "사랑은 빠지는(falling) 것이 아니라 서 있는(standing) 것"이라고 했다. 즉, 사랑은 우연히 느껴지는 감정이 아니라 의지로 가꿔야 하는 기술(art)이라는 것이다. 본문은 이러한 입장과 맥을 같이한다. 사랑을 단지 감정으로만 환원하는 사고방식은 결혼의 위기마다 이혼을 '정당한 선택'으로 보이게 만들지만, 사랑을 의지적 선택과 헌신으로 보는 관점에서는 감정의 부재가 결혼을 깰 정당한 이유가 되지 않는다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>📈 결혼에서의 감정 곡선</h4>
+          <p>심리학자 존 가트만(John Gottman)의 부부 연구에 따르면, 결혼 첫 7년간은 열정적 감정이 지배하지만, 이후 감정은 점차 잦아들고 그 자리를 깊은 동반자적 유대(companionate love)가 대신한다. 행복한 부부와 이혼하는 부부의 차이는 감정의 강도가 아니라 위기 상황에서 보이는 헌신과 의사소통 방식에 있다. 본문 ⑦번 문장의 "감정은 부차적이 된다"는 표현은 바로 이러한 결혼의 자연스러운 발전 과정을 반영한다.</p>
+        </div>
+      </div>
+
+      <!-- 변형문제 -->
+      <div class="tab-content" id="t1g">
+        <!-- Q1: 주제 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">1번</span>다음 글의 주제로 가장 적절한 것은?</div>
+          <button class="quiz-choice" onclick="check(1,1,1,false)"><span class="opt-num">①</span>연애 초기에 감정이 차지하는 결정적 역할</button>
+          <button class="quiz-choice" onclick="check(1,1,2,false)"><span class="opt-num">②</span>현대 사회에서 이혼율이 증가하는 사회적 원인</button>
+          <button class="quiz-choice" onclick="check(1,1,3,true)"><span class="opt-num">③</span>감정을 넘어선 헌신으로서의 진정한 결혼 사랑</button>
+          <button class="quiz-choice" onclick="check(1,1,4,false)"><span class="opt-num">④</span>결혼 생활에서 의사소통이 갖는 중요성</button>
+          <button class="quiz-choice" onclick="check(1,1,5,false)"><span class="opt-num">⑤</span>종교적 결혼 의례가 갖는 사회적 기능</button>
+          <div class="quiz-feedback" id="fb-q1-1"></div>
+          <button class="reset-btn" onclick="resetQuiz(1,1)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q2: 빈칸 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">2번</span>다음 글의 빈칸에 들어갈 말로 가장 적절한 것은?</div>
+          <div class="quiz-passage">True marital love understands that the commitment ______ subjective feelings. Marriage is about a choice to commit one&#39;s life to another for their well-being regardless of emotions.</div>
+          <button class="quiz-choice" onclick="check(1,2,1,false)"><span class="opt-num">①</span>depends on</button>
+          <button class="quiz-choice" onclick="check(1,2,2,false)"><span class="opt-num">②</span>creates</button>
+          <button class="quiz-choice" onclick="check(1,2,3,true)"><span class="opt-num">③</span>transcends</button>
+          <button class="quiz-choice" onclick="check(1,2,4,false)"><span class="opt-num">④</span>imitates</button>
+          <button class="quiz-choice" onclick="check(1,2,5,false)"><span class="opt-num">⑤</span>weakens</button>
+          <div class="quiz-feedback" id="fb-q1-2"></div>
+          <button class="reset-btn" onclick="resetQuiz(1,2)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q3: 어법 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">3번</span>다음 글의 밑줄 친 부분 중 어법상 틀린 것은?</div>
+          <div class="quiz-passage">When a young man commits ① <u>himself</u> to a woman in the Sacrament of Marriage, he makes a vow ② <u>to love</u> her ③ <u>regardless</u> of his feelings. As time passes and the trials of life ④ <u>weigh down</u>, the couple may not feel the sentiments of love. Marriage is ⑤ <u>about</u> a choice to commit one&#39;s life to another for their well-being.</div>
+          <button class="quiz-choice" onclick="check(1,3,1,false)"><span class="opt-num">①</span>himself</button>
+          <button class="quiz-choice" onclick="check(1,3,2,false)"><span class="opt-num">②</span>to love</button>
+          <button class="quiz-choice" onclick="check(1,3,3,true)"><span class="opt-num">③</span>regardless</button>
+          <button class="quiz-choice" onclick="check(1,3,4,false)"><span class="opt-num">④</span>weigh down</button>
+          <button class="quiz-choice" onclick="check(1,3,5,false)"><span class="opt-num">⑤</span>about</button>
+          <div class="quiz-feedback" id="fb-q1-3"></div>
+          <button class="reset-btn" onclick="resetQuiz(1,3)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q4: 불일치 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">4번</span>다음 글의 내용과 일치하지 않는 것은?</div>
+          <button class="quiz-choice" onclick="check(1,4,1,false)"><span class="opt-num">①</span>결혼 서약은 감정과 상관없이 사랑하겠다는 약속이다.</button>
+          <button class="quiz-choice" onclick="check(1,4,2,false)"><span class="opt-num">②</span>시간이 흐르면 부부는 사랑의 감정을 느끼지 못할 수도 있다.</button>
+          <button class="quiz-choice" onclick="check(1,4,3,false)"><span class="opt-num">③</span>사랑을 단지 감정으로만 환원하면 결혼 이탈이 정당하게 보인다.</button>
+          <button class="quiz-choice" onclick="check(1,4,4,true)"><span class="opt-num">④</span>구애 초기의 감정은 진정한 사랑으로 발전한 후에 더욱 중요해진다.</button>
+          <button class="quiz-choice" onclick="check(1,4,5,false)"><span class="opt-num">⑤</span>결혼의 본질은 상대의 행복을 위한 의지적 선택에 있다.</button>
+          <div class="quiz-feedback" id="fb-q1-4"></div>
+          <button class="reset-btn" onclick="resetQuiz(1,4)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q5: 순서 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">5번</span>주어진 글 다음에 이어질 글의 순서로 가장 적절한 것은?</div>
+          <div class="quiz-passage"><b>(주어진 글)</b> When a young man commits himself to a woman in the Sacrament of Marriage, he makes a vow to love her regardless of his feelings. What does this mean?<br><br>
+          <b>(A)</b> True marital love, however, understands that the commitment transcends subjective feelings. The feelings may have been necessary at the beginning of courtship, but if it evolves into true love, feelings become secondary.<br><br>
+          <b>(B)</b> As time passes and the trials of life weigh down, the couple may not feel the sentiments of love. Because many people have a wrong understanding of love, they feel justified to leave the marriage and look for those same feelings in another person. This makes sense if we reduce love to mere feelings.<br><br>
+          <b>(C)</b> Marriage is about a choice to commit one&#39;s life to another for their well-being regardless of emotions.</div>
+          <button class="quiz-choice" onclick="check(1,5,1,false)"><span class="opt-num">①</span>(A) - (B) - (C)</button>
+          <button class="quiz-choice" onclick="check(1,5,2,false)"><span class="opt-num">②</span>(A) - (C) - (B)</button>
+          <button class="quiz-choice" onclick="check(1,5,3,true)"><span class="opt-num">③</span>(B) - (A) - (C)</button>
+          <button class="quiz-choice" onclick="check(1,5,4,false)"><span class="opt-num">④</span>(B) - (C) - (A)</button>
+          <button class="quiz-choice" onclick="check(1,5,5,false)"><span class="opt-num">⑤</span>(C) - (A) - (B)</button>
+          <div class="quiz-feedback" id="fb-q1-5"></div>
+          <button class="reset-btn" onclick="resetQuiz(1,5)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- 서술형 1 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 1</span>다음 빈칸에 들어갈 알맞은 말을 본문에서 찾아 쓰시오.</div>
+          <div class="quiz-passage">According to the author, marriage is essentially a (1) ______ to commit one&#39;s life to another for their (2) ______, regardless of emotions.</div>
+          <div class="cond">조건: (1)과 (2)에 들어갈 단어를 본문에서 찾아 한 단어씩 쓸 것. (2)는 본문의 복합어(하이픈 포함)를 그대로 쓸 것.</div>
+          <textarea placeholder="(1) ______________________&#10;(2) ______________________"></textarea>
+          <button class="toggle-ans" onclick="toggleAns(1,1)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans1-1">
+            <b>모범답안:</b> (1) choice &nbsp;&nbsp; (2) well-being<br>
+            <b>해설:</b> 본문 ⑧번 문장 "Marriage is about a choice to commit one&#39;s life to another for their well-being..."에서 두 단어를 그대로 찾을 수 있다.
+          </div>
+        </div>
+
+        <!-- 서술형 2 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 2</span>본문에 따르면, 많은 사람들이 결혼을 떠나 다른 사람에게서 같은 감정을 찾는 것이 정당하다고 느끼는 이유는 무엇인지 영어로 서술하시오.</div>
+          <div class="cond">조건: 본문 ④~⑤번 문장의 내용을 바탕으로, 완전한 영어 문장으로 25~35단어 이내로 작성할 것.</div>
+          <textarea placeholder="Write your answer in English (25~35 words)..."></textarea>
+          <button class="toggle-ans" onclick="toggleAns(1,2)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans1-2">
+            <b>모범답안:</b> Many people have a wrong understanding of love because they reduce love to mere feelings, so when feelings fade, leaving the marriage seems reasonable and justified to them. (28 words)<br>
+            <b>해설:</b> 사랑을 단순한 감정으로만 보는 잘못된 이해가 그 정당화의 근거이다. 본문은 이러한 환원적 사랑관을 비판한다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PASSAGE 2 ============ -->
+    <section class="passage" id="p2">
+      <div class="passage-header">
+        <div class="label">PASSAGE 6-2</div>
+        <h2>Goffman&#39;s Body Gloss</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="showTab(2,'a')">① 전문</button>
+        <button class="tab" onclick="showTab(2,'b')">② 문장분석</button>
+        <button class="tab" onclick="showTab(2,'c')">③ 핵심단어</button>
+        <button class="tab" onclick="showTab(2,'d')">④ 전문해석</button>
+        <button class="tab" onclick="showTab(2,'e')">⑤ 주제·요지</button>
+        <button class="tab" onclick="showTab(2,'f')">⑥ 배경지식</button>
+        <button class="tab" onclick="showTab(2,'g')">⑦ 변형문제</button>
+      </div>
+
+      <!-- 전문 -->
+      <div class="tab-content active" id="t2a">
+        <div class="full-passage">
+          <span class="circ">①</span> One of the interesting examples of nonverbal communication in impression management is Goffman&#39;s body gloss.
+          <span class="circ">②</span> In this process, individuals exhibit behavior designed to conceal or gloss over a potentially negative incident and thereby reduce observers&#39; unfavorable impressions.
+          <span class="circ">③</span> That is, body gloss frequently involves an actor playing to observers of a particular event.
+          <span class="circ">④</span> Thus, body gloss is unnecessary when there is no audience to impress.
+          <span class="circ">⑤</span> Unlike much of other nonverbal communication, however, this behavior is not necessarily interactive and conscious.
+          <span class="circ">⑥</span> Most of us have seen incidents of body gloss and, on occasion, have been actors in such performances, even if we were unaware of it.
+        </div>
+        <div style="margin-top:20px; padding:14px 18px; background:#fff2cc; border-left:4px solid #c8a84b; border-radius:4px; font-size:13px; color:#5a4500;">
+          <b>※ 어법 수정:</b> 본 지문의 ① expose는 문맥상 어색하여 <b>conceal</b>로 수정되었습니다. (감추다 ↔ 드러내다 의미 대조)
+        </div>
+      </div>
+
+      <!-- 문장분석 -->
+      <div class="tab-content" id="t2b">
+        <div class="full-passage" style="margin-bottom:30px;">
+          <span class="circ">①</span> One of the interesting examples of nonverbal communication in impression management is Goffman&#39;s body gloss.
+          <span class="circ">②</span> In this process, individuals exhibit behavior designed to conceal or gloss over a potentially negative incident and thereby reduce observers&#39; unfavorable impressions.
+          <span class="circ">③</span> That is, body gloss frequently involves an actor playing to observers of a particular event.
+          <span class="circ">④</span> Thus, body gloss is unnecessary when there is no audience to impress.
+          <span class="circ">⑤</span> Unlike much of other nonverbal communication, however, this behavior is not necessarily interactive and conscious.
+          <span class="circ">⑥</span> Most of us have seen incidents of body gloss and, on occasion, have been actors in such performances, even if we were unaware of it.
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">①</span></div>
+          <div class="eng-box">One of the interesting examples of nonverbal communication in impression management is Goffman&#39;s body gloss.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">One of the interesting examples</span> <span class="slash">/</span> <span class="eng-chunk">of nonverbal communication</span> <span class="slash">/</span> <span class="eng-chunk">in impression management</span> <span class="slash">/</span> <span class="eng-chunk">is Goffman&#39;s body gloss.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 흥미로운 예시들 중 하나는 / 비언어적 의사소통의 / 인상 관리에서의 / 고프먼의 보디 글로스이다.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>One of the + 복수명사 (단수 취급)</b> <span class="triangle">▶</span> <u>One</u> of the examples <u>is</u> Goffman&#39;s... <span class="star">★</span> 주어의 핵은 One(단수) → 단수 동사 is; of 이하 수식어에 현혹되지 말 것</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>전치사구의 중첩 (of ~ in ~)</b> <span class="triangle">▶</span> examples <u>of</u> nonverbal communication <u>in</u> impression management <span class="star">★</span> 두 개 이상의 전치사구가 명사 수식</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>소유격 &#39;s (Goffman&#39;s)</b> <span class="triangle">▶</span> Goffman<u>&#39;s</u> body gloss <span class="star">★</span> 인명/생물체에는 &#39;s 사용; 고유명사 + &#39;s</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">②</span></div>
+          <div class="eng-box">In this process, individuals exhibit behavior designed to conceal or gloss over a potentially negative incident and thereby reduce observers&#39; unfavorable impressions.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">In this process,</span> <span class="slash">/</span> <span class="eng-chunk">individuals exhibit behavior</span> <span class="slash">/</span> <span class="eng-chunk">designed to conceal or gloss over a potentially negative incident</span> <span class="slash">/</span> <span class="eng-chunk">and thereby reduce observers&#39; unfavorable impressions.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 이 과정에서 / 개인들은 행동을 보인다 / 잠재적으로 부정적인 사건을 감추거나 얼버무리도록 고안된 / 그리고 그렇게 함으로써 관찰자들의 부정적인 인상을 줄이도록.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>과거분사 후치수식 (designed)</b> <span class="triangle">▶</span> behavior <u>designed</u> to conceal... (~하도록 고안된 행동) <span class="star">★</span> 명사 + p.p. (수동의 의미로 명사 수식); = behavior which is designed to...</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>to부정사 목적 (~하기 위해)</b> <span class="triangle">▶</span> designed <u>to conceal or gloss over</u>... <span class="star">★</span> to + 동사원형 (목적·결과)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>동사원형 병렬 (conceal/gloss over ~ reduce)</b> <span class="triangle">▶</span> to <u>conceal</u> or <u>gloss over</u>... and thereby <u>reduce</u>... <span class="star">★</span> 세 동사가 모두 to에 걸리는 병렬; thereby = and by doing so</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>thereby (그렇게 함으로써)</b> <span class="triangle">▶</span> and <u>thereby</u> reduce... <span class="star">★</span> 결과·수단의 부사 (= and in that way); 글의 인과 관계 표시</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>소유격 복수 &#39;s (observers&#39;)</b> <span class="triangle">▶</span> <u>observers&#39;</u> unfavorable impressions <span class="star">★</span> -s로 끝나는 복수명사 → 어포스트로피만 (observers&#39;)</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">③</span></div>
+          <div class="eng-box">That is, body gloss frequently involves an actor playing to observers of a particular event.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">That is,</span> <span class="slash">/</span> <span class="eng-chunk">body gloss frequently involves</span> <span class="slash">/</span> <span class="eng-chunk">an actor</span> <span class="slash">/</span> <span class="eng-chunk">playing to observers</span> <span class="slash">/</span> <span class="eng-chunk">of a particular event.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 즉 / 보디 글로스는 자주 포함한다 / 한 행위자를 / 관찰자들에게 어필하는 / 특정 사건의.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>That is (즉, 다시 말해서)</b> <span class="triangle">▶</span> <u>That is,</u> body gloss... <span class="star">★</span> = In other words / Namely; 앞 문장의 부연 설명 도입</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>involve + 목적어 + 현재분사 (~가 …하는 것을 포함하다)</b> <span class="triangle">▶</span> involves an actor <u>playing</u> to observers <span class="star">★</span> involve + O + V-ing 구조; playing이 actor를 후치수식</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>play to (~에게 어필하다, ~의 비위를 맞추다)</b> <span class="triangle">▶</span> <u>playing to</u> observers <span class="star">★</span> 관용 표현; play to the crowd/audience (관객의 호응을 노리고 연기하다)</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">④</span></div>
+          <div class="eng-box">Thus, body gloss is unnecessary when there is no audience to impress.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Thus,</span> <span class="slash">/</span> <span class="eng-chunk">body gloss is unnecessary</span> <span class="slash">/</span> <span class="eng-chunk">when there is no audience</span> <span class="slash">/</span> <span class="eng-chunk">to impress.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 따라서 / 보디 글로스는 불필요하다 / 관객이 없을 때 / 인상을 줄 만한.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>결과 부사 Thus (따라서)</b> <span class="triangle">▶</span> <u>Thus,</u> body gloss is unnecessary... <span class="star">★</span> 앞 문장의 결과를 도출 (= Therefore, So)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>There is no + 명사 구문</b> <span class="triangle">▶</span> <u>there is no</u> audience <span class="star">★</span> 부정의 존재 구문; 단수 명사 + is</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>to부정사 형용사적 용법</b> <span class="triangle">▶</span> audience <u>to impress</u> (인상을 줄 관객) <span class="star">★</span> 명사 + to부정사 (능동의 의미: 관객이 인상받게 만들)</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑤</span></div>
+          <div class="eng-box">Unlike much of other nonverbal communication, however, this behavior is not necessarily interactive and conscious.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Unlike much of other nonverbal communication,</span> <span class="slash">/</span> <span class="eng-chunk">however,</span> <span class="slash">/</span> <span class="eng-chunk">this behavior is not necessarily</span> <span class="slash">/</span> <span class="eng-chunk">interactive and conscious.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 다른 비언어적 의사소통의 많은 부분과는 달리 / 그러나 / 이 행동은 반드시 ~인 것은 아니다 / 상호작용적이고 의식적인.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>전치사 Unlike (~과 달리)</b> <span class="triangle">▶</span> <u>Unlike</u> much of other nonverbal communication <span class="star">★</span> Unlike + 명사 (대조); Different from과 비교</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>부분부정 not necessarily (반드시 ~인 것은 아니다)</b> <span class="triangle">▶</span> is <u>not necessarily</u> interactive and conscious <span class="star">★</span> 부분부정의 대표 표현; 전체부정과 구별</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>much of + 명사 (~의 많은 부분)</b> <span class="triangle">▶</span> <u>much of</u> other nonverbal communication <span class="star">★</span> much of the/그/소유격 + 명사; 가산명사 앞에서는 many of</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>형용사의 병렬</b> <span class="triangle">▶</span> <u>interactive</u> and <u>conscious</u> <span class="star">★</span> 형용사 + 형용사 병렬; 보어 자리</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑥</span></div>
+          <div class="eng-box">Most of us have seen incidents of body gloss and, on occasion, have been actors in such performances, even if we were unaware of it.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Most of us have seen incidents of body gloss</span> <span class="slash">/</span> <span class="eng-chunk">and, on occasion, have been actors</span> <span class="slash">/</span> <span class="eng-chunk">in such performances,</span> <span class="slash">/</span> <span class="eng-chunk">even if we were unaware of it.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 우리 대부분은 보디 글로스의 사례들을 본 적이 있다 / 그리고 가끔은 행위자가 된 적도 있다 / 그러한 연기에서 / 비록 우리가 그것을 모르고 있었다 할지라도.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>현재완료 (경험)</b> <span class="triangle">▶</span> <u>have seen</u> ~ and <u>have been</u> ... <span class="star">★</span> 과거부터 현재까지의 경험 (~한 적이 있다)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>현재완료의 병렬</b> <span class="triangle">▶</span> have <u>seen</u> ~ and have <u>been</u> ~ <span class="star">★</span> 동일 주어에 대한 두 현재완료의 병렬; 두 번째 have는 생략 가능</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>Most of + us/them/the + 명사</b> <span class="triangle">▶</span> <u>Most of us</u> <span class="star">★</span> Most of + 한정사/대명사 + 명사 구조; Most + 무관사 명사와 구별</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>even if (양보의 접속사, 비록 ~일지라도)</b> <span class="triangle">▶</span> <u>even if</u> we were unaware <span class="star">★</span> even if (가정·양보) vs even though (사실 양보) 구별</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>be unaware of (~을 알지 못하다)</b> <span class="triangle">▶</span> we were <u>unaware of</u> it <span class="star">★</span> unaware/aware + of + 명사; cf. be conscious of</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 핵심단어 -->
+      <div class="tab-content" id="t2c">
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="word">nonverbal</div><div class="meaning">비언어적인</div><div class="pos">adj.</div><div class="deriv">verbal (adj.), verbalize (v.)</div></div>
+          <div class="vocab-item"><div class="word">impression management</div><div class="meaning">인상 관리 (남에게 보이는 자기 이미지 조절)</div><div class="pos">n.phr.</div><div class="deriv">impress (v.), impression (n.)</div></div>
+          <div class="vocab-item"><div class="word">body gloss</div><div class="meaning">보디 글로스 (감추기/얼버무리기 행동)</div><div class="pos">n.phr.</div><div class="deriv">gloss (v./n.)</div></div>
+          <div class="vocab-item"><div class="word">exhibit</div><div class="meaning">보이다, 드러내다</div><div class="pos">v.</div><div class="deriv">exhibition (n.), exhibitor (n.)</div></div>
+          <div class="vocab-item"><div class="word">conceal</div><div class="meaning">감추다, 숨기다</div><div class="pos">v.</div><div class="deriv">concealment (n.) ↔ reveal/expose</div></div>
+          <div class="vocab-item"><div class="word">gloss over</div><div class="meaning">얼버무리다, 대충 넘어가다</div><div class="pos">phr.v.</div><div class="deriv">gloss (n.)</div></div>
+          <div class="vocab-item"><div class="word">potentially</div><div class="meaning">잠재적으로</div><div class="pos">adv.</div><div class="deriv">potential (adj./n.)</div></div>
+          <div class="vocab-item"><div class="word">incident</div><div class="meaning">사건, 일</div><div class="pos">n.</div><div class="deriv">incidental (adj.)</div></div>
+          <div class="vocab-item"><div class="word">thereby</div><div class="meaning">그렇게 함으로써</div><div class="pos">adv.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">observer</div><div class="meaning">관찰자, 보는 사람</div><div class="pos">n.</div><div class="deriv">observe (v.), observation (n.)</div></div>
+          <div class="vocab-item"><div class="word">unfavorable</div><div class="meaning">호의적이지 않은, 부정적인</div><div class="pos">adj.</div><div class="deriv">favor (n./v.), favorable (adj.) ↔ favorable</div></div>
+          <div class="vocab-item"><div class="word">impression</div><div class="meaning">인상</div><div class="pos">n.</div><div class="deriv">impress (v.), impressive (adj.)</div></div>
+          <div class="vocab-item"><div class="word">play to</div><div class="meaning">~에게 어필하다, 비위를 맞추다</div><div class="pos">phr.v.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">particular</div><div class="meaning">특정한</div><div class="pos">adj.</div><div class="deriv">particularly (adv.)</div></div>
+          <div class="vocab-item"><div class="word">unnecessary</div><div class="meaning">불필요한</div><div class="pos">adj.</div><div class="deriv">necessary (adj.) ↔ necessary</div></div>
+          <div class="vocab-item"><div class="word">audience</div><div class="meaning">관객, 청중</div><div class="pos">n.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">interactive</div><div class="meaning">상호작용적인</div><div class="pos">adj.</div><div class="deriv">interact (v.), interaction (n.)</div></div>
+          <div class="vocab-item"><div class="word">conscious</div><div class="meaning">의식적인, 의식하는</div><div class="pos">adj.</div><div class="deriv">consciousness (n.) ↔ unconscious</div></div>
+          <div class="vocab-item"><div class="word">on occasion</div><div class="meaning">가끔, 때때로</div><div class="pos">phr.</div><div class="deriv">occasion (n.), occasional (adj.)</div></div>
+          <div class="vocab-item"><div class="word">unaware of</div><div class="meaning">~을 알지 못하는</div><div class="pos">adj.</div><div class="deriv">aware (adj.), awareness (n.)</div></div>
+        </div>
+      </div>
+
+      <!-- 전문해석 -->
+      <div class="tab-content" id="t2d">
+        <div class="translation-box">
+          인상 관리에서의 비언어적 의사소통의 흥미로운 예시 중 하나는 고프먼(Goffman)의 '보디 글로스(body gloss)'이다. 이 과정에서 개인들은 잠재적으로 부정적인 사건을 감추거나 얼버무려 그렇게 함으로써 관찰자들의 부정적인 인상을 줄이도록 고안된 행동을 보인다. 다시 말해, 보디 글로스는 특정 사건의 관찰자들을 향해 연기하는 행위자를 자주 포함한다. 따라서 인상을 줄 만한 관객이 없을 때 보디 글로스는 불필요하다. 그러나 다른 비언어적 의사소통의 많은 부분과 달리, 이 행동이 반드시 상호작용적이고 의식적인 것은 아니다. 우리 대부분은 보디 글로스의 사례들을 본 적이 있으며, 가끔은 자신도 그것을 의식하지 못한 채 그러한 '연기'의 행위자가 되어 본 적도 있다.
+        </div>
+      </div>
+
+      <!-- 주제·요지 -->
+      <div class="tab-content" id="t2e">
+        <div class="theme-card">
+          <div class="label">THEME · 주제</div>
+          <div class="content">관객의 시선을 의식한 비언어적 인상 관리 행위로서의 보디 글로스</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">MAIN IDEA · 요지</div>
+          <div class="content">보디 글로스는 부정적 사건을 감추거나 얼버무려 관찰자의 인상을 관리하기 위한 비언어적 행동이며, 관객을 전제로 하지만 반드시 의식적이거나 상호작용적인 것은 아니다.</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">STRUCTURE · 구조 흐름</div>
+          <div class="structure-flow">
+            <div class="step"><b>도입 (①)</b>고프먼의 보디 글로스 개념 소개</div>
+            <div class="step"><b>정의 (②~③)</b>부정적 사건을 감추고 관찰자에게 어필하는 행동</div>
+            <div class="step"><b>특징 (④~⑤)</b>관객 없으면 불필요하지만, 반드시 의식적·상호작용적이지는 않음</div>
+            <div class="step"><b>결론 (⑥)</b>우리 모두 무의식적으로 보디 글로스의 행위자가 된 경험이 있음</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 배경지식 -->
+      <div class="tab-content" id="t2f">
+        <div class="bg-card">
+          <h4>👤 어빙 고프먼 (Erving Goffman)</h4>
+          <p>어빙 고프먼(1922~1982)은 캐나다 출신 미국 사회학자로, '연극학적 사회학(dramaturgical sociology)'을 정립한 인물이다. 그의 대표작 『자아 표현의 사회학(The Presentation of Self in Everyday Life)』(1959)에서 그는 일상생활을 무대 위의 공연(performance)에 비유했다. 사람들은 '무대 앞(front stage)'에서 관객(타인)을 의식하며 자신의 이미지를 관리하고, '무대 뒤(backstage)'에서는 그 가면을 벗는다는 것이다. 본문의 '보디 글로스'는 이러한 무대 앞 인상 관리의 구체적 사례다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🎭 인상 관리 (Impression Management)</h4>
+          <p>인상 관리는 다른 사람이 자신을 어떻게 인식하는지를 조절하려는 모든 의식적·무의식적 시도를 가리킨다. 고프먼은 우리가 깨어 있는 거의 모든 순간 인상 관리에 임한다고 보았다. 면접에서 옷차림과 자세를 신경 쓰는 것, 데이트에서 매너를 보이는 것, SNS 프로필 사진을 고심하는 것, 회의에서 자신감 있게 보이려 노력하는 것 등이 모두 인상 관리이다. 보디 글로스는 그중에서도 '부정적 사건의 흔적을 지우는' 비언어적 기술에 해당한다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🚶 보디 글로스의 일상 사례</h4>
+          <p>길에서 갑자기 넘어진 사람이 일어나서 옷을 털며 마치 의도적으로 한 행동이었던 양 차분하게 걸어가는 모습, 약속 장소에 늦은 사람이 들어오면서 일부러 시계를 보며 '나도 방금 왔다'는 듯한 표정을 짓는 모습, 식당에서 메뉴를 잘못 시킨 사람이 '원래 이걸 시키려 했다'는 듯 웃으며 먹는 모습 — 이 모두가 보디 글로스의 실제 사례다. 본문의 '얼버무리기(gloss over)'는 바로 이런 미세한 비언어적 신호를 통해 부끄러운 순간을 무마하는 행위를 의미한다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🤔 의식 vs 무의식의 사회적 행동</h4>
+          <p>본문 ⑤번 문장이 강조하듯, 보디 글로스의 흥미로운 점은 반드시 의식적이지 않다는 것이다. 우리는 사회화 과정을 통해 너무나 깊이 인상 관리 습관을 내면화한 나머지, 자기도 모르는 사이에 자동적으로 인상 관리 행동을 한다. 이는 행동경제학과 인지심리학에서 말하는 '자동적 사회 행동(automatic social behavior)' 개념과 연결된다. 즉, 우리는 모두 무대 위의 배우인데, 자신이 연기하고 있다는 사실조차 자주 잊는다.</p>
+        </div>
+      </div>
+
+      <!-- 변형문제 -->
+      <div class="tab-content" id="t2g">
+        <!-- Q1: 주제 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">1번</span>다음 글의 주제로 가장 적절한 것은?</div>
+          <button class="quiz-choice" onclick="check(2,1,1,false)"><span class="opt-num">①</span>고프먼이 사회학에 끼친 학문적 영향</button>
+          <button class="quiz-choice" onclick="check(2,1,2,false)"><span class="opt-num">②</span>비언어적 의사소통이 언어보다 우월한 이유</button>
+          <button class="quiz-choice" onclick="check(2,1,3,true)"><span class="opt-num">③</span>관객을 의식한 인상 관리로서의 보디 글로스의 특징</button>
+          <button class="quiz-choice" onclick="check(2,1,4,false)"><span class="opt-num">④</span>의식적 행동과 무의식적 행동의 명확한 구분 기준</button>
+          <button class="quiz-choice" onclick="check(2,1,5,false)"><span class="opt-num">⑤</span>현대 사회에서 거짓말이 갖는 사회적 기능</button>
+          <div class="quiz-feedback" id="fb-q2-1"></div>
+          <button class="reset-btn" onclick="resetQuiz(2,1)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q2: 빈칸 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">2번</span>다음 글의 빈칸에 들어갈 말로 가장 적절한 것은?</div>
+          <div class="quiz-passage">Thus, body gloss is unnecessary when there is no ______ to impress.</div>
+          <button class="quiz-choice" onclick="check(2,2,1,false)"><span class="opt-num">①</span>actor</button>
+          <button class="quiz-choice" onclick="check(2,2,2,false)"><span class="opt-num">②</span>incident</button>
+          <button class="quiz-choice" onclick="check(2,2,3,true)"><span class="opt-num">③</span>audience</button>
+          <button class="quiz-choice" onclick="check(2,2,4,false)"><span class="opt-num">④</span>impression</button>
+          <button class="quiz-choice" onclick="check(2,2,5,false)"><span class="opt-num">⑤</span>performance</button>
+          <div class="quiz-feedback" id="fb-q2-2"></div>
+          <button class="reset-btn" onclick="resetQuiz(2,2)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q3: 어법 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">3번</span>다음 글의 밑줄 친 부분 중 어법상 틀린 것은?</div>
+          <div class="quiz-passage">One of the interesting examples of nonverbal communication in impression management ① <u>is</u> Goffman&#39;s body gloss. In this process, individuals exhibit behavior ② <u>designing</u> to conceal or gloss over a potentially negative incident and ③ <u>thereby</u> reduce observers&#39; unfavorable impressions. Body gloss frequently involves an actor ④ <u>playing</u> to observers of a particular event. Most of us ⑤ <u>have seen</u> incidents of body gloss.</div>
+          <button class="quiz-choice" onclick="check(2,3,1,false)"><span class="opt-num">①</span>is</button>
+          <button class="quiz-choice" onclick="check(2,3,2,true)"><span class="opt-num">②</span>designing</button>
+          <button class="quiz-choice" onclick="check(2,3,3,false)"><span class="opt-num">③</span>thereby</button>
+          <button class="quiz-choice" onclick="check(2,3,4,false)"><span class="opt-num">④</span>playing</button>
+          <button class="quiz-choice" onclick="check(2,3,5,false)"><span class="opt-num">⑤</span>have seen</button>
+          <div class="quiz-feedback" id="fb-q2-3"></div>
+          <button class="reset-btn" onclick="resetQuiz(2,3)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q4: 불일치 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">4번</span>다음 글의 내용과 일치하지 않는 것은?</div>
+          <button class="quiz-choice" onclick="check(2,4,1,false)"><span class="opt-num">①</span>보디 글로스는 고프먼이 제시한 비언어적 의사소통의 한 예이다.</button>
+          <button class="quiz-choice" onclick="check(2,4,2,false)"><span class="opt-num">②</span>보디 글로스의 목적은 관찰자의 부정적 인상을 줄이는 것이다.</button>
+          <button class="quiz-choice" onclick="check(2,4,3,false)"><span class="opt-num">③</span>관객이 없는 상황에서 보디 글로스는 불필요해진다.</button>
+          <button class="quiz-choice" onclick="check(2,4,4,true)"><span class="opt-num">④</span>보디 글로스는 항상 의식적이고 상호작용적인 행동이다.</button>
+          <button class="quiz-choice" onclick="check(2,4,5,false)"><span class="opt-num">⑤</span>우리 대부분은 자신도 모르게 보디 글로스의 행위자가 된 적이 있다.</button>
+          <div class="quiz-feedback" id="fb-q2-4"></div>
+          <button class="reset-btn" onclick="resetQuiz(2,4)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q5: 순서 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">5번</span>주어진 글 다음에 이어질 글의 순서로 가장 적절한 것은?</div>
+          <div class="quiz-passage"><b>(주어진 글)</b> One of the interesting examples of nonverbal communication in impression management is Goffman&#39;s body gloss.<br><br>
+          <b>(A)</b> Thus, body gloss is unnecessary when there is no audience to impress. Unlike much of other nonverbal communication, however, this behavior is not necessarily interactive and conscious.<br><br>
+          <b>(B)</b> In this process, individuals exhibit behavior designed to conceal or gloss over a potentially negative incident and thereby reduce observers&#39; unfavorable impressions. That is, body gloss frequently involves an actor playing to observers of a particular event.<br><br>
+          <b>(C)</b> Most of us have seen incidents of body gloss and, on occasion, have been actors in such performances, even if we were unaware of it.</div>
+          <button class="quiz-choice" onclick="check(2,5,1,false)"><span class="opt-num">①</span>(A) - (B) - (C)</button>
+          <button class="quiz-choice" onclick="check(2,5,2,false)"><span class="opt-num">②</span>(A) - (C) - (B)</button>
+          <button class="quiz-choice" onclick="check(2,5,3,true)"><span class="opt-num">③</span>(B) - (A) - (C)</button>
+          <button class="quiz-choice" onclick="check(2,5,4,false)"><span class="opt-num">④</span>(B) - (C) - (A)</button>
+          <button class="quiz-choice" onclick="check(2,5,5,false)"><span class="opt-num">⑤</span>(C) - (B) - (A)</button>
+          <div class="quiz-feedback" id="fb-q2-5"></div>
+          <button class="reset-btn" onclick="resetQuiz(2,5)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- 서술형 1 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 1</span>다음 빈칸에 들어갈 알맞은 말을 본문에서 찾아 쓰시오.</div>
+          <div class="quiz-passage">Body gloss is a kind of nonverbal behavior used in (1) ______ management; its goal is to conceal a potentially negative incident and (2) ______ reduce the unfavorable impressions of observers.</div>
+          <div class="cond">조건: (1)과 (2)에 들어갈 단어를 본문에서 찾아 한 단어씩 쓸 것.</div>
+          <textarea placeholder="(1) ______________________&#10;(2) ______________________"></textarea>
+          <button class="toggle-ans" onclick="toggleAns(2,1)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans2-1">
+            <b>모범답안:</b> (1) impression &nbsp;&nbsp; (2) thereby<br>
+            <b>해설:</b> ①번 문장 "nonverbal communication in impression management"에서 (1) impression, ②번 문장 "and thereby reduce observers&#39; unfavorable impressions"에서 (2) thereby를 찾을 수 있다.
+          </div>
+        </div>
+
+        <!-- 서술형 2 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 2</span>본문에 따르면, 보디 글로스가 다른 비언어적 의사소통과 구별되는 가장 중요한 차이점은 무엇인지 영어로 서술하시오.</div>
+          <div class="cond">조건: 본문 ⑤~⑥번 문장의 내용을 바탕으로, 완전한 영어 문장으로 25~35단어 이내로 작성할 것.</div>
+          <textarea placeholder="Write your answer in English (25~35 words)..."></textarea>
+          <button class="toggle-ans" onclick="toggleAns(2,2)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans2-2">
+            <b>모범답안:</b> Unlike most other forms of nonverbal communication, body gloss is not necessarily interactive or conscious, so people can act as performers of body gloss without even being aware of it. (30 words)<br>
+            <b>해설:</b> 다른 비언어적 의사소통은 일반적으로 의식적이고 상호작용적이지만, 보디 글로스는 무의식적·자동적으로 이루어질 수 있다는 점이 핵심 차이다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PASSAGE 3 ============ -->
+    <section class="passage" id="p3">
+      <div class="passage-header">
+        <div class="label">PASSAGE 6-3</div>
+        <h2>The Fluoride Test &amp; the Piltdown Hoax</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="showTab(3,'a')">① 전문</button>
+        <button class="tab" onclick="showTab(3,'b')">② 문장분석</button>
+        <button class="tab" onclick="showTab(3,'c')">③ 핵심단어</button>
+        <button class="tab" onclick="showTab(3,'d')">④ 전문해석</button>
+        <button class="tab" onclick="showTab(3,'e')">⑤ 주제·요지</button>
+        <button class="tab" onclick="showTab(3,'f')">⑥ 배경지식</button>
+        <button class="tab" onclick="showTab(3,'g')">⑦ 변형문제</button>
+      </div>
+
+      <!-- 전문 -->
+      <div class="tab-content active" id="t3a">
+        <div class="full-passage">
+          <span class="circ">①</span> Fluorine is a chemical element that is present in the environment.
+          <span class="circ">②</span> When bones are formed, they do not contain much fluoride, but they absorb it from the environment over time.
+          <span class="circ">③</span> In other words, the older a bone is, the more fluoride it has, so by measuring that amount we can know its age.
+          <span class="circ">④</span> It was found that the Piltdown remains had minimal amounts of fluoride, so it was clear that they had been buried recently.
+          <span class="circ">⑤</span> The news was sensational, especially in countries such as France and Germany, although, it has to be said, also in Great Britain and the United States, the latter a country where there were scientists who had doubted the English &lsquo;presapiens&rsquo;.
+          <span class="circ">⑥</span> Yet many supporters of Piltdown Man&mdash;journalists and palaeontologists&mdash;refused to acknowledge the evidence provided by the fluoride.
+          <span class="circ">⑦</span> It was in 1953 that other analyses revealed that the remains had been dyed to give them an antique appearance and, worst of all, the teeth of the jaw, which turned out to be from an orangutan, had been filed down to give them a human look.
+        </div>
+      </div>
+
+      <!-- 문장분석 -->
+      <div class="tab-content" id="t3b">
+        <div class="full-passage" style="margin-bottom:30px;">
+          <span class="circ">①</span> Fluorine is a chemical element that is present in the environment.
+          <span class="circ">②</span> When bones are formed, they do not contain much fluoride, but they absorb it from the environment over time.
+          <span class="circ">③</span> In other words, the older a bone is, the more fluoride it has, so by measuring that amount we can know its age.
+          <span class="circ">④</span> It was found that the Piltdown remains had minimal amounts of fluoride, so it was clear that they had been buried recently.
+          <span class="circ">⑤</span> The news was sensational, especially in countries such as France and Germany, although, it has to be said, also in Great Britain and the United States, the latter a country where there were scientists who had doubted the English &lsquo;presapiens&rsquo;.
+          <span class="circ">⑥</span> Yet many supporters of Piltdown Man&mdash;journalists and palaeontologists&mdash;refused to acknowledge the evidence provided by the fluoride.
+          <span class="circ">⑦</span> It was in 1953 that other analyses revealed that the remains had been dyed to give them an antique appearance and, worst of all, the teeth of the jaw, which turned out to be from an orangutan, had been filed down to give them a human look.
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">①</span></div>
+          <div class="eng-box">Fluorine is a chemical element that is present in the environment.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Fluorine is a chemical element</span> <span class="slash">/</span> <span class="eng-chunk">that is present</span> <span class="slash">/</span> <span class="eng-chunk">in the environment.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 불소는 화학 원소이다 / 존재하는 / 환경 속에.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>주격 관계대명사 that</b> <span class="triangle">▶</span> a chemical element <u>that</u> is present... <span class="star">★</span> 선행사(element, 단수, 사물) + that + 동사(is); which와 교체 가능</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>be present in (~에 존재하다)</b> <span class="triangle">▶</span> <u>is present in</u> the environment <span class="star">★</span> present의 다양한 의미 중 '존재하는'; absent in과 대립</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">②</span></div>
+          <div class="eng-box">When bones are formed, they do not contain much fluoride, but they absorb it from the environment over time.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">When bones are formed,</span> <span class="slash">/</span> <span class="eng-chunk">they do not contain much fluoride,</span> <span class="slash">/</span> <span class="eng-chunk">but they absorb it from the environment</span> <span class="slash">/</span> <span class="eng-chunk">over time.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 뼈들이 형성될 때 / 그것들은 많은 불소를 포함하지 않는다 / 그러나 그것들은 환경으로부터 그것을 흡수한다 / 시간이 지나면서.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>시간 부사절 When + 수동태</b> <span class="triangle">▶</span> <u>When</u> bones <u>are formed</u> <span class="star">★</span> When절 내 수동태(be + p.p.); 시간/조건절에서는 미래도 현재시제로</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>등위접속사 but (대조)</b> <span class="triangle">▶</span> do not contain..., <u>but</u> they absorb... <span class="star">★</span> 부정문 + but + 긍정문 (대조)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>much + 불가산명사</b> <span class="triangle">▶</span> <u>much</u> fluoride (많은 불소) <span class="star">★</span> fluoride는 불가산명사 → much; cf. many + 가산명사</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>over time (시간이 지나면서)</b> <span class="triangle">▶</span> absorb it from the environment <u>over time</u> <span class="star">★</span> 부사구; with time / as time passes와 동의</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">③</span></div>
+          <div class="eng-box">In other words, the older a bone is, the more fluoride it has, so by measuring that amount we can know its age.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">In other words,</span> <span class="slash">/</span> <span class="eng-chunk">the older a bone is,</span> <span class="slash">/</span> <span class="eng-chunk">the more fluoride it has,</span> <span class="slash">/</span> <span class="eng-chunk">so by measuring that amount</span> <span class="slash">/</span> <span class="eng-chunk">we can know its age.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 다시 말해 / 뼈가 더 오래될수록 / 그것은 더 많은 불소를 가진다 / 그래서 그 양을 측정함으로써 / 우리는 그것의 나이를 알 수 있다.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>the 비교급 ~, the 비교급 ~ 구문</b> <span class="triangle">▶</span> <u>the older</u> a bone is, <u>the more fluoride</u> it has <span class="star">★</span> "~할수록 더 …하다"; 두 절의 도치 어순에 주의</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>by + 동명사 (수단·방법)</b> <span class="triangle">▶</span> <u>by measuring</u> that amount <span class="star">★</span> by -ing (~함으로써); 전치사 by 뒤에는 동명사</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>so 결과 접속사 (그래서)</b> <span class="triangle">▶</span> ..., <u>so</u> by measuring... we can know... <span class="star">★</span> 등위접속사 so (결과); 콤마 + so 형태로 두 절 연결</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>지시형용사 that (그)</b> <span class="triangle">▶</span> <u>that</u> amount (= the amount of fluoride) <span class="star">★</span> 앞서 언급한 명사를 가리키는 지시형용사</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">④</span></div>
+          <div class="eng-box">It was found that the Piltdown remains had minimal amounts of fluoride, so it was clear that they had been buried recently.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">It was found</span> <span class="slash">/</span> <span class="eng-chunk">that the Piltdown remains had minimal amounts of fluoride,</span> <span class="slash">/</span> <span class="eng-chunk">so it was clear</span> <span class="slash">/</span> <span class="eng-chunk">that they had been buried recently.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 발견되었다 / 필트다운 유해가 최소량의 불소를 가지고 있었다는 것이 / 그래서 분명했다 / 그것들이 최근에 묻혔다는 것이.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>가주어 It + 진주어 that절 (수동태)</b> <span class="triangle">▶</span> <u>It</u> was found <u>that</u> the Piltdown remains had... <span class="star">★</span> It is/was + p.p. + that절 구문; It = 진주어 that절</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>과거완료 수동태 had been + p.p.</b> <span class="triangle">▶</span> they <u>had been buried</u> recently <span class="star">★</span> 더 앞선 과거의 수동 (대과거); 발견 시점(과거)보다 앞선 매장 시점</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>so 결과접속사 (그래서)</b> <span class="triangle">▶</span> ..., <u>so</u> it was clear that... <span class="star">★</span> 결과 도출; It is clear that 명사절</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>주의: remains (유해, 항상 복수)</b> <span class="triangle">▶</span> the Piltdown remains <u>had</u> minimal amounts <span class="star">★</span> remains(유해)는 항상 복수형 + 복수 동사</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑤</span></div>
+          <div class="eng-box">The news was sensational, especially in countries such as France and Germany, although, it has to be said, also in Great Britain and the United States, the latter a country where there were scientists who had doubted the English &lsquo;presapiens&rsquo;.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">The news was sensational,</span> <span class="slash">/</span> <span class="eng-chunk">especially in countries such as France and Germany,</span> <span class="slash">/</span> <span class="eng-chunk">although, it has to be said, also in Great Britain and the United States,</span> <span class="slash">/</span> <span class="eng-chunk">the latter a country</span> <span class="slash">/</span> <span class="eng-chunk">where there were scientists</span> <span class="slash">/</span> <span class="eng-chunk">who had doubted the English &lsquo;presapiens&rsquo;.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 그 소식은 센세이셔널했다 / 특히 프랑스와 독일 같은 나라들에서 / 비록, 말하자면, 영국과 미국에서도 그러했지만 / 후자는 한 나라였다 / 과학자들이 있는 / 영국의 '프리사피엔스'를 의심해 왔던.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>such as (예시: ~과 같은)</b> <span class="triangle">▶</span> countries <u>such as</u> France and Germany <span class="star">★</span> 명사 + such as + 예시; like와 호환 가능</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>양보 접속사 although (비록 ~일지라도)</b> <span class="triangle">▶</span> <u>although</u>, ..., also in Great Britain... <span class="star">★</span> although + S+V; 여기서는 콤마+삽입절 사이에 들어가 어순 복잡</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>삽입절 it has to be said (사실대로 말하자면)</b> <span class="triangle">▶</span> ..., <u>it has to be said</u>, ... <span class="star">★</span> 콤마 사이 삽입; 필자의 견해를 부드럽게 추가</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>the latter (후자) + 동격 명사구</b> <span class="triangle">▶</span> ..., <u>the latter</u> a country... <span class="star">★</span> the former / the latter (전자/후자); 여기서는 동격 (the latter = a country)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>관계부사 where (장소)</b> <span class="triangle">▶</span> a country <u>where</u> there were scientists <span class="star">★</span> 선행사(country) + where + S+V; in which와 동일</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>주격 관계대명사 who + 과거완료</b> <span class="triangle">▶</span> scientists <u>who had doubted</u>... <span class="star">★</span> 사람 선행사 + who; had doubted(과거완료) = 본문 사건보다 더 이전의 의심</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑥</span></div>
+          <div class="eng-box">Yet many supporters of Piltdown Man&mdash;journalists and palaeontologists&mdash;refused to acknowledge the evidence provided by the fluoride.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Yet many supporters of Piltdown Man</span> <span class="slash">/</span> <span class="eng-chunk">&mdash;journalists and palaeontologists&mdash;</span> <span class="slash">/</span> <span class="eng-chunk">refused to acknowledge</span> <span class="slash">/</span> <span class="eng-chunk">the evidence provided by the fluoride.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 그러나 필트다운인의 많은 지지자들은 / 즉 기자들과 고생물학자들은 / 인정하기를 거부했다 / 불소가 제공한 증거를.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>접속부사 Yet (그러나)</b> <span class="triangle">▶</span> <u>Yet</u> many supporters... <span class="star">★</span> 문두 Yet = However, But (대조); 강한 반전</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>대시(&mdash;) 동격 삽입</b> <span class="triangle">▶</span> many supporters of Piltdown Man <u>&mdash;journalists and palaeontologists&mdash;</u> refused... <span class="star">★</span> 두 개의 대시 사이에 동격 명사구 삽입 (보충 설명)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>refuse + to부정사 (~하기를 거부하다)</b> <span class="triangle">▶</span> <u>refused to acknowledge</u> <span class="star">★</span> refuse는 to부정사를 목적어로 취함 (refuse -ing 불가)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>과거분사 후치수식 (provided)</b> <span class="triangle">▶</span> the evidence <u>provided</u> by the fluoride <span class="star">★</span> 명사 + p.p. + by (수동 의미); = which was provided by</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑦</span></div>
+          <div class="eng-box">It was in 1953 that other analyses revealed that the remains had been dyed to give them an antique appearance and, worst of all, the teeth of the jaw, which turned out to be from an orangutan, had been filed down to give them a human look.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">It was in 1953 that other analyses revealed</span> <span class="slash">/</span> <span class="eng-chunk">that the remains had been dyed</span> <span class="slash">/</span> <span class="eng-chunk">to give them an antique appearance</span> <span class="slash">/</span> <span class="eng-chunk">and, worst of all,</span> <span class="slash">/</span> <span class="eng-chunk">the teeth of the jaw,</span> <span class="slash">/</span> <span class="eng-chunk">which turned out to be from an orangutan,</span> <span class="slash">/</span> <span class="eng-chunk">had been filed down</span> <span class="slash">/</span> <span class="eng-chunk">to give them a human look.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 다른 분석들이 밝힌 것은 1953년이었다 / 그 유해가 염색되었다는 것을 / 그것들에 골동품 같은 외관을 주기 위해 / 그리고 무엇보다도 / 턱뼈의 치아가 / 오랑우탄의 것임이 밝혀진 / 줄로 갈렸다는 것을 / 그것들에 인간 같은 모습을 주기 위해.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>It ~ that 강조구문</b> <span class="triangle">▶</span> <u>It was in 1953 that</u> other analyses revealed... <span class="star">★</span> '~한 것은 바로 …이다' 강조 구문; in 1953(부사구) 강조</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>reveal + that 명사절</b> <span class="triangle">▶</span> revealed <u>that</u> the remains had been dyed... <span class="star">★</span> 전달동사 + that S+V (목적절)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>과거완료 수동태 (had been + p.p.)</b> <span class="triangle">▶</span> the remains <u>had been dyed</u> ~ had been filed down <span class="star">★</span> 발견 시점(1953)보다 앞선 수동 행위; 사기 행위가 먼저 일어남</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>to부정사 목적 (~하기 위해)</b> <span class="triangle">▶</span> <u>to give</u> them an antique appearance / <u>to give</u> them a human look <span class="star">★</span> 두 개의 to부정사가 각각 목적을 표시 (병렬)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>관계대명사 계속적 용법 (콤마+which)</b> <span class="triangle">▶</span> the teeth of the jaw, <u>which</u> turned out to be from an orangutan, ... <span class="star">★</span> 콤마+which = and they; 선행사에 대한 보충 설명</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>turn out to be (~인 것으로 밝혀지다)</b> <span class="triangle">▶</span> <u>turned out to be</u> from an orangutan <span class="star">★</span> turn out + to부정사; = it appeared / proved</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>file down (줄로 갈아내다)</b> <span class="triangle">▶</span> had been <u>filed down</u> <span class="star">★</span> 동사 file + 부사 down (구동사); 인간 치아처럼 보이게 갈아냄</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 핵심단어 -->
+      <div class="tab-content" id="t3c">
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="word">fluorine</div><div class="meaning">불소 (원소)</div><div class="pos">n.</div><div class="deriv">fluoride (n., 화합물 형태)</div></div>
+          <div class="vocab-item"><div class="word">chemical element</div><div class="meaning">화학 원소</div><div class="pos">n.phr.</div><div class="deriv">chemistry (n.), elemental (adj.)</div></div>
+          <div class="vocab-item"><div class="word">be present in</div><div class="meaning">~에 존재하다</div><div class="pos">phr.</div><div class="deriv">presence (n.) ↔ absent</div></div>
+          <div class="vocab-item"><div class="word">contain</div><div class="meaning">포함하다, 함유하다</div><div class="pos">v.</div><div class="deriv">container (n.), content (n.)</div></div>
+          <div class="vocab-item"><div class="word">fluoride</div><div class="meaning">불화물, 불소 (화합물)</div><div class="pos">n.</div><div class="deriv">fluorine (n.)</div></div>
+          <div class="vocab-item"><div class="word">absorb</div><div class="meaning">흡수하다</div><div class="pos">v.</div><div class="deriv">absorption (n.), absorbent (adj.)</div></div>
+          <div class="vocab-item"><div class="word">over time</div><div class="meaning">시간이 지나면서</div><div class="pos">phr.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">in other words</div><div class="meaning">다시 말해, 즉</div><div class="pos">phr.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">measure</div><div class="meaning">측정하다</div><div class="pos">v.</div><div class="deriv">measurement (n.)</div></div>
+          <div class="vocab-item"><div class="word">remains</div><div class="meaning">유해, 잔해 (항상 복수)</div><div class="pos">n.pl.</div><div class="deriv">remain (v.)</div></div>
+          <div class="vocab-item"><div class="word">minimal</div><div class="meaning">최소의, 아주 적은</div><div class="pos">adj.</div><div class="deriv">minimum (n.), minimize (v.) ↔ maximal</div></div>
+          <div class="vocab-item"><div class="word">bury</div><div class="meaning">묻다, 매장하다</div><div class="pos">v.</div><div class="deriv">burial (n.)</div></div>
+          <div class="vocab-item"><div class="word">sensational</div><div class="meaning">세상을 떠들썩하게 한, 선풍적인</div><div class="pos">adj.</div><div class="deriv">sensation (n.), sense (n.)</div></div>
+          <div class="vocab-item"><div class="word">the latter</div><div class="meaning">후자 (의)</div><div class="pos">n./adj.</div><div class="deriv">↔ the former</div></div>
+          <div class="vocab-item"><div class="word">doubt</div><div class="meaning">의심하다</div><div class="pos">v.</div><div class="deriv">doubtful (adj.), doubtless (adv.)</div></div>
+          <div class="vocab-item"><div class="word">presapiens</div><div class="meaning">프리사피엔스 (Homo sapiens 이전 인류)</div><div class="pos">n.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">supporter</div><div class="meaning">지지자</div><div class="pos">n.</div><div class="deriv">support (v./n.)</div></div>
+          <div class="vocab-item"><div class="word">palaeontologist</div><div class="meaning">고생물학자</div><div class="pos">n.</div><div class="deriv">palaeontology (n.)</div></div>
+          <div class="vocab-item"><div class="word">refuse to V</div><div class="meaning">~하기를 거부하다</div><div class="pos">phr.</div><div class="deriv">refusal (n.)</div></div>
+          <div class="vocab-item"><div class="word">acknowledge</div><div class="meaning">인정하다</div><div class="pos">v.</div><div class="deriv">acknowledgment (n.)</div></div>
+          <div class="vocab-item"><div class="word">evidence</div><div class="meaning">증거</div><div class="pos">n.</div><div class="deriv">evident (adj.)</div></div>
+          <div class="vocab-item"><div class="word">analysis</div><div class="meaning">분석 (pl. analyses)</div><div class="pos">n.</div><div class="deriv">analyze (v.), analyst (n.)</div></div>
+          <div class="vocab-item"><div class="word">reveal</div><div class="meaning">밝히다, 드러내다</div><div class="pos">v.</div><div class="deriv">revelation (n.)</div></div>
+          <div class="vocab-item"><div class="word">dye</div><div class="meaning">염색하다</div><div class="pos">v./n.</div><div class="deriv">dyed (adj.)</div></div>
+          <div class="vocab-item"><div class="word">antique</div><div class="meaning">골동품 같은, 고대의</div><div class="pos">adj./n.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">turn out to be</div><div class="meaning">~인 것으로 밝혀지다</div><div class="pos">phr.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">file down</div><div class="meaning">줄로 갈아내다</div><div class="pos">phr.v.</div><div class="deriv">file (n./v.)</div></div>
+        </div>
+      </div>
+
+      <!-- 전문해석 -->
+      <div class="tab-content" id="t3d">
+        <div class="translation-box">
+          불소(Fluorine)는 환경 속에 존재하는 화학 원소이다. 뼈가 형성될 때 처음에는 불소를 많이 함유하지 않지만, 시간이 지나면서 환경으로부터 불소를 흡수한다. 다시 말해, 뼈가 오래될수록 더 많은 불소를 가지고 있으므로, 그 양을 측정하면 그 뼈의 나이를 알 수 있다. 분석 결과 필트다운(Piltdown) 유해는 불소 함량이 극히 적은 것으로 밝혀졌고, 따라서 그 유해가 비교적 최근에 묻혔다는 사실이 분명해졌다. 이 소식은 특히 프랑스와 독일 같은 나라들에서 큰 파장을 일으켰는데, 사실대로 말하자면 영국과 미국 — 미국은 영국의 '프리사피엔스(presapiens)' 가설을 의심하는 과학자들이 있던 나라였다 — 에서도 마찬가지였다. 그러나 필트다운인의 지지자들, 즉 많은 기자들과 고생물학자들은 불소가 제시한 증거를 인정하기를 거부했다. 다른 분석들이 그 유해가 골동품 같은 외관을 띠게 하려고 염색되었음을 밝히고, 무엇보다도 오랑우탄의 것으로 밝혀진 턱뼈의 치아가 인간의 치아처럼 보이도록 갈려 있었음을 드러낸 것은 바로 1953년이었다.
+        </div>
+      </div>
+
+      <!-- 주제·요지 -->
+      <div class="tab-content" id="t3e">
+        <div class="theme-card">
+          <div class="label">THEME · 주제</div>
+          <div class="content">불소 연대측정법으로 폭로된 필트다운인 사기 사건</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">MAIN IDEA · 요지</div>
+          <div class="content">뼈가 환경으로부터 불소를 시간에 따라 흡수한다는 원리를 이용한 불소 분석으로 필트다운 유해가 최근의 것임이 드러났고, 1953년의 추가 분석으로 그것이 의도적으로 조작된 사기였음이 최종 폭로되었다.</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">STRUCTURE · 구조 흐름</div>
+          <div class="structure-flow">
+            <div class="step"><b>도입 — 원리 (①~③)</b>뼈의 불소 함량과 연대측정의 과학적 원리</div>
+            <div class="step"><b>적용 (④)</b>필트다운 유해의 불소 함량이 너무 적음 → 최근에 묻혔다는 결론</div>
+            <div class="step"><b>반응 (⑤~⑥)</b>유럽·미국에서 화제; 영국 지지자들은 증거 부정</div>
+            <div class="step"><b>최종 폭로 (⑦)</b>1953년 — 염색 + 오랑우탄 치아 갈기로 만들어진 조작품임을 확인</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 배경지식 -->
+      <div class="tab-content" id="t3f">
+        <div class="bg-card">
+          <h4>🦴 필트다운인 (Piltdown Man) 사건이란?</h4>
+          <p>1912년 영국 서식스주 필트다운(Piltdown) 마을의 한 자갈 채굴장에서 변호사이자 아마추어 고고학자인 찰스 도슨(Charles Dawson)이 두개골과 턱뼈 화석을 '발견'했다. 이는 인간과 유인원의 '잃어버린 고리(missing link)'로 선전되어 'Eoanthropus dawsoni' (도슨의 새벽인간)라 명명되었다. 이 발견은 영국을 인류 진화의 중심지로 만들어 주는 듯했고, 약 40년간 학계의 공식 견해로 받아들여졌다. 그러나 1953년 새 분석 기법으로 사기임이 폭로된, 과학사상 가장 유명한 위조 사건이다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>⚗️ 불소 연대측정법 (Fluorine Dating)</h4>
+          <p>뼈가 땅에 묻혀 있는 동안 토양 속의 불소가 천천히 흡수되어 화석화된 뼈에 축적된다. 매장 기간이 길수록 불소 함량이 높아지므로, 같은 지역에서 발굴된 뼈들의 불소 함량을 비교하면 상대적 연대를 알 수 있다. 1949년 영국 자연사박물관의 케네스 오클리(Kenneth Oakley)가 필트다운 유해의 불소 함량이 같은 지층의 다른 화석들에 비해 현저히 낮음을 발견하면서 사기 의혹이 본격적으로 제기됐다. 다만 불소 흡수율은 지역마다 달라 절대적 연대 측정에는 한계가 있다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🌍 '프리사피엔스(Presapiens)' 가설의 정치학</h4>
+          <p>20세기 초 인류 진화 연구에는 국가별 자존심이 작용했다. 프랑스는 크로마뇽인(Cro-Magnon), 독일은 네안데르탈인을 보유한 반면, 영국은 마땅한 화석이 없었다. 필트다운인은 영국에 '가장 오래된 현생 인류의 조상'을 안겨 주는 발견으로 환영받았다. 본문이 언급한 '영국의 presapiens'는 바로 이 가설이다. 미국과 일부 유럽 학자들은 처음부터 의문을 제기했지만, 영국 학계의 권위 앞에서 묻혔다. 사기 폭로의 충격은 그래서 더 컸다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🔬 1953년의 추가 분석과 사기의 전모</h4>
+          <p>1953년 옥스퍼드의 J. S. Weiner, K. P. Oakley, W. E. Le Gros Clark 세 사람의 공동 연구로 사기의 전모가 드러났다. 두개골은 중세 인간의 것, 턱뼈는 약 500년 된 오랑우탄의 것이었으며, 둘 다 중크롬산칼륨으로 염색되어 오래된 것처럼 위장됐다. 오랑우탄 어금니는 사람의 마모 흔적과 유사하게 줄로 갈려 있었다. 누가 위조했는지는 지금도 논쟁 중이지만, 도슨 자신이 가장 유력한 용의자다. 이 사건은 과학에서도 권위와 국가적 자부심이 비판적 검증을 흐릴 수 있음을 보여 주는 교훈이 되었다.</p>
+        </div>
+      </div>
+
+      <!-- 변형문제 -->
+      <div class="tab-content" id="t3g">
+        <!-- Q1: 주제 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">1번</span>다음 글의 주제로 가장 적절한 것은?</div>
+          <button class="quiz-choice" onclick="check(3,1,1,false)"><span class="opt-num">①</span>20세기 초 영국 인류학계의 학문적 위상 변화</button>
+          <button class="quiz-choice" onclick="check(3,1,2,false)"><span class="opt-num">②</span>화학 원소 불소의 다양한 산업적 활용 가능성</button>
+          <button class="quiz-choice" onclick="check(3,1,3,true)"><span class="opt-num">③</span>불소 분석을 통한 필트다운인 사기 사건의 폭로 과정</button>
+          <button class="quiz-choice" onclick="check(3,1,4,false)"><span class="opt-num">④</span>고생물학 분야에서 화석 보존이 가지는 의미</button>
+          <button class="quiz-choice" onclick="check(3,1,5,false)"><span class="opt-num">⑤</span>현대 인류와 오랑우탄의 진화적 유사성</button>
+          <div class="quiz-feedback" id="fb-q3-1"></div>
+          <button class="reset-btn" onclick="resetQuiz(3,1)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q2: 빈칸 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">2번</span>다음 글의 빈칸에 들어갈 말로 가장 적절한 것은?</div>
+          <div class="quiz-passage">In other words, the older a bone is, the more ______ it has, so by measuring that amount we can know its age.</div>
+          <button class="quiz-choice" onclick="check(3,2,1,false)"><span class="opt-num">①</span>calcium</button>
+          <button class="quiz-choice" onclick="check(3,2,2,false)"><span class="opt-num">②</span>oxygen</button>
+          <button class="quiz-choice" onclick="check(3,2,3,true)"><span class="opt-num">③</span>fluoride</button>
+          <button class="quiz-choice" onclick="check(3,2,4,false)"><span class="opt-num">④</span>moisture</button>
+          <button class="quiz-choice" onclick="check(3,2,5,false)"><span class="opt-num">⑤</span>nitrogen</button>
+          <div class="quiz-feedback" id="fb-q3-2"></div>
+          <button class="reset-btn" onclick="resetQuiz(3,2)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q3: 어법 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">3번</span>다음 글의 밑줄 친 부분 중 어법상 틀린 것은?</div>
+          <div class="quiz-passage">It ① <u>was found</u> that the Piltdown remains had minimal amounts of fluoride, so it was clear that they ② <u>had been buried</u> recently. Yet many supporters of Piltdown Man refused ③ <u>acknowledging</u> the evidence ④ <u>provided</u> by the fluoride. It was in 1953 ⑤ <u>that</u> other analyses revealed the truth.</div>
+          <button class="quiz-choice" onclick="check(3,3,1,false)"><span class="opt-num">①</span>was found</button>
+          <button class="quiz-choice" onclick="check(3,3,2,false)"><span class="opt-num">②</span>had been buried</button>
+          <button class="quiz-choice" onclick="check(3,3,3,true)"><span class="opt-num">③</span>acknowledging</button>
+          <button class="quiz-choice" onclick="check(3,3,4,false)"><span class="opt-num">④</span>provided</button>
+          <button class="quiz-choice" onclick="check(3,3,5,false)"><span class="opt-num">⑤</span>that</button>
+          <div class="quiz-feedback" id="fb-q3-3"></div>
+          <button class="reset-btn" onclick="resetQuiz(3,3)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q4: 불일치 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">4번</span>다음 글의 내용과 일치하지 않는 것은?</div>
+          <button class="quiz-choice" onclick="check(3,4,1,false)"><span class="opt-num">①</span>뼈는 형성될 때 불소를 많이 포함하지 않고 시간이 지나며 흡수한다.</button>
+          <button class="quiz-choice" onclick="check(3,4,2,false)"><span class="opt-num">②</span>뼈의 불소 양을 측정하면 그 뼈의 나이를 추정할 수 있다.</button>
+          <button class="quiz-choice" onclick="check(3,4,3,false)"><span class="opt-num">③</span>필트다운 유해의 불소 함량은 매우 적은 것으로 나타났다.</button>
+          <button class="quiz-choice" onclick="check(3,4,4,true)"><span class="opt-num">④</span>필트다운인의 지지자들은 불소 증거가 나오자 즉시 사기를 인정했다.</button>
+          <button class="quiz-choice" onclick="check(3,4,5,false)"><span class="opt-num">⑤</span>1953년 분석에서 턱뼈의 치아는 오랑우탄의 것으로 밝혀졌다.</button>
+          <div class="quiz-feedback" id="fb-q3-4"></div>
+          <button class="reset-btn" onclick="resetQuiz(3,4)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q5: 순서 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">5번</span>주어진 글 다음에 이어질 글의 순서로 가장 적절한 것은?</div>
+          <div class="quiz-passage"><b>(주어진 글)</b> Fluorine is a chemical element that is present in the environment. When bones are formed, they do not contain much fluoride, but they absorb it from the environment over time.<br><br>
+          <b>(A)</b> Yet many supporters of Piltdown Man&mdash;journalists and palaeontologists&mdash;refused to acknowledge the evidence provided by the fluoride.<br><br>
+          <b>(B)</b> In other words, the older a bone is, the more fluoride it has, so by measuring that amount we can know its age. It was found that the Piltdown remains had minimal amounts of fluoride, so it was clear that they had been buried recently.<br><br>
+          <b>(C)</b> It was in 1953 that other analyses revealed that the remains had been dyed to give them an antique appearance and, worst of all, the teeth of the jaw, which turned out to be from an orangutan, had been filed down to give them a human look.</div>
+          <button class="quiz-choice" onclick="check(3,5,1,false)"><span class="opt-num">①</span>(A) - (B) - (C)</button>
+          <button class="quiz-choice" onclick="check(3,5,2,false)"><span class="opt-num">②</span>(A) - (C) - (B)</button>
+          <button class="quiz-choice" onclick="check(3,5,3,true)"><span class="opt-num">③</span>(B) - (A) - (C)</button>
+          <button class="quiz-choice" onclick="check(3,5,4,false)"><span class="opt-num">④</span>(B) - (C) - (A)</button>
+          <button class="quiz-choice" onclick="check(3,5,5,false)"><span class="opt-num">⑤</span>(C) - (B) - (A)</button>
+          <div class="quiz-feedback" id="fb-q3-5"></div>
+          <button class="reset-btn" onclick="resetQuiz(3,5)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- 서술형 1 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 1</span>다음 빈칸에 들어갈 알맞은 말을 본문에서 찾아 쓰시오.</div>
+          <div class="quiz-passage">According to the passage, the older a bone is, the (1) ______ fluoride it has, because bones (2) ______ fluoride from the environment over time.</div>
+          <div class="cond">조건: (1)과 (2)에 들어갈 단어를 본문에서 찾아 한 단어씩 쓸 것.</div>
+          <textarea placeholder="(1) ______________________&#10;(2) ______________________"></textarea>
+          <button class="toggle-ans" onclick="toggleAns(3,1)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans3-1">
+            <b>모범답안:</b> (1) more &nbsp;&nbsp; (2) absorb<br>
+            <b>해설:</b> 본문 ③번 문장 "the more fluoride it has"에서 (1) more, ②번 문장 "they absorb it from the environment"에서 (2) absorb를 찾을 수 있다.
+          </div>
+        </div>
+
+        <!-- 서술형 2 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 2</span>본문에 따르면, 1953년 추가 분석이 필트다운 유해에 대해 밝힌 두 가지 조작 사실은 무엇인지 영어로 서술하시오.</div>
+          <div class="cond">조건: 본문 ⑦번 문장의 내용을 바탕으로, 완전한 영어 문장으로 30~40단어 이내로 작성할 것.</div>
+          <textarea placeholder="Write your answer in English (30~40 words)..."></textarea>
+          <button class="toggle-ans" onclick="toggleAns(3,2)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans3-2">
+            <b>모범답안:</b> The remains had been dyed to look antique, and the teeth of the jaw, which actually came from an orangutan, had been filed down so that they would look human. (32 words)<br>
+            <b>해설:</b> ① 유해 전체를 염색해 골동품처럼 보이게 함, ② 오랑우탄 턱뼈의 이를 갈아내어 인간 치아처럼 보이게 함 — 이 두 가지가 핵심 조작 행위다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PASSAGE 4 ============ -->
+    <section class="passage" id="p4">
+      <div class="passage-header">
+        <div class="label">PASSAGE 6-4</div>
+        <h2>Field vs Lab Experiments</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="showTab(4,'a')">① 전문</button>
+        <button class="tab" onclick="showTab(4,'b')">② 문장분석</button>
+        <button class="tab" onclick="showTab(4,'c')">③ 핵심단어</button>
+        <button class="tab" onclick="showTab(4,'d')">④ 전문해석</button>
+        <button class="tab" onclick="showTab(4,'e')">⑤ 주제·요지</button>
+        <button class="tab" onclick="showTab(4,'f')">⑥ 배경지식</button>
+        <button class="tab" onclick="showTab(4,'g')">⑦ 변형문제</button>
+      </div>
+
+      <!-- 전문 -->
+      <div class="tab-content active" id="t4a">
+        <div class="full-passage">
+          <span class="circ">①</span> Experiments are good for testing the effects of &lsquo;treatments&rsquo;; a treatment being the variable or stimulus that you are changing in order to test a differential response.
+          <span class="circ">②</span> For example, which web page configuration users prefer.
+          <span class="circ">③</span> This can be done covertly online by simply randomly exposing two groups to the two different configurations.
+          <span class="circ">④</span> If the dependent variable/objective is time on site then you can readily determine which website configuration leads to greater engagement.
+          <span class="circ">⑤</span> The overt/active lab-based experiment is most suited to studies seeking to determine psychological factors (though the lab can be virtual/online) and generally these are the preserve of academic inquiry.
+          <span class="circ">⑥</span> A company could employ a lab-based experiment to test differential reactions to two forms of packaging, for example.
+          <span class="circ">⑦</span> The problem with the lab experiment is that it tends to isolate a stimulus or effect.
+          <span class="circ">⑧</span> People make decisions and buy things in the real, noisy world where various other things influence and distract you.
+        </div>
+      </div>
+
+      <!-- 문장분석 -->
+      <div class="tab-content" id="t4b">
+        <div class="full-passage" style="margin-bottom:30px;">
+          <span class="circ">①</span> Experiments are good for testing the effects of &lsquo;treatments&rsquo;; a treatment being the variable or stimulus that you are changing in order to test a differential response.
+          <span class="circ">②</span> For example, which web page configuration users prefer.
+          <span class="circ">③</span> This can be done covertly online by simply randomly exposing two groups to the two different configurations.
+          <span class="circ">④</span> If the dependent variable/objective is time on site then you can readily determine which website configuration leads to greater engagement.
+          <span class="circ">⑤</span> The overt/active lab-based experiment is most suited to studies seeking to determine psychological factors (though the lab can be virtual/online) and generally these are the preserve of academic inquiry.
+          <span class="circ">⑥</span> A company could employ a lab-based experiment to test differential reactions to two forms of packaging, for example.
+          <span class="circ">⑦</span> The problem with the lab experiment is that it tends to isolate a stimulus or effect.
+          <span class="circ">⑧</span> People make decisions and buy things in the real, noisy world where various other things influence and distract you.
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">①</span></div>
+          <div class="eng-box">Experiments are good for testing the effects of &lsquo;treatments&rsquo;; a treatment being the variable or stimulus that you are changing in order to test a differential response.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">Experiments are good</span> <span class="slash">/</span> <span class="eng-chunk">for testing the effects of &lsquo;treatments&rsquo;;</span> <span class="slash">/</span> <span class="eng-chunk">a treatment being the variable or stimulus</span> <span class="slash">/</span> <span class="eng-chunk">that you are changing</span> <span class="slash">/</span> <span class="eng-chunk">in order to test a differential response.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 실험은 적합하다 / '처치'의 효과를 검증하는 데 / 처치란 변수나 자극이다 / 당신이 바꾸고 있는 / 차별적 반응을 시험하기 위해.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>be good for + 동명사 (~에 적합하다)</b> <span class="triangle">▶</span> <u>are good for testing</u> <span class="star">★</span> 전치사 for + 동명사; be suitable for와 동의</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>세미콜론(;)의 부연 설명 용법</b> <span class="triangle">▶</span> ~&lsquo;treatments&rsquo;<u>;</u> a treatment being... <span class="star">★</span> 세미콜론 뒤에 앞 명사(treatment)의 정의·부연이 옴</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>분사구문 (a treatment being ~)</b> <span class="triangle">▶</span> <u>a treatment being</u> the variable... <span class="star">★</span> 독립분사구문 (= and a treatment is); 주어가 별도로 있어 분사구문의 주어 a treatment 명시</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>주격 관계대명사 that</b> <span class="triangle">▶</span> the variable or stimulus <u>that</u> you are changing <span class="star">★</span> 선행사(variable or stimulus, 사물) + that + S+V; 목적격 관계대명사로도 분석 가능 (you are changing의 목적어)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>in order to + 동사원형 (~하기 위해)</b> <span class="triangle">▶</span> <u>in order to test</u> <span class="star">★</span> to부정사 목적의 강조 형태 (= so as to V)</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">②</span></div>
+          <div class="eng-box">For example, which web page configuration users prefer.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">For example,</span> <span class="slash">/</span> <span class="eng-chunk">which web page configuration</span> <span class="slash">/</span> <span class="eng-chunk">users prefer.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 예를 들어 / 어떤 웹페이지 구성을 / 사용자들이 선호하는지.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>For example (예를 들어)</b> <span class="triangle">▶</span> <u>For example,</u> ... <span class="star">★</span> 앞 문장의 구체적 사례 도입 (= For instance)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>간접의문문 (which + 명사 + S + V)</b> <span class="triangle">▶</span> <u>which web page configuration users prefer</u> <span class="star">★</span> 의문사 + 명사 + 주어 + 동사 어순; 앞 문장의 testing 목적어로 연결</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>주의: 불완전 문장 (sentence fragment)</b> <span class="triangle">▶</span> 주절 동사가 없는 의문절만 단독 제시 <span class="star">★</span> 비격식 학술 문체에서 앞 문장의 보충 예시를 강조하기 위한 fragment 사용</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">③</span></div>
+          <div class="eng-box">This can be done covertly online by simply randomly exposing two groups to the two different configurations.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">This can be done covertly online</span> <span class="slash">/</span> <span class="eng-chunk">by simply randomly exposing two groups</span> <span class="slash">/</span> <span class="eng-chunk">to the two different configurations.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 이것은 은밀하게 온라인으로 행해질 수 있다 / 단순히 무작위로 두 집단을 노출시킴으로써 / 두 가지 다른 구성에.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>조동사 + 수동태 (can be + p.p.)</b> <span class="triangle">▶</span> This <u>can be done</u> covertly <span class="star">★</span> 조동사 can + be + p.p.; 능동: We can do this</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>by + 동명사 (수단)</b> <span class="triangle">▶</span> <u>by</u> simply randomly <u>exposing</u> two groups... <span class="star">★</span> 전치사 by + 동명사 (~함으로써)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>expose A to B (A를 B에 노출시키다)</b> <span class="triangle">▶</span> <u>exposing</u> two groups <u>to</u> the two different configurations <span class="star">★</span> 전치사 to 고정; exposure (n.)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>부사 연속 사용</b> <span class="triangle">▶</span> <u>covertly</u> online / <u>simply randomly</u> exposing <span class="star">★</span> 여러 부사가 동사를 연속 수식 (방법·정도)</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">④</span></div>
+          <div class="eng-box">If the dependent variable/objective is time on site then you can readily determine which website configuration leads to greater engagement.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">If the dependent variable/objective is time on site</span> <span class="slash">/</span> <span class="eng-chunk">then you can readily determine</span> <span class="slash">/</span> <span class="eng-chunk">which website configuration leads to</span> <span class="slash">/</span> <span class="eng-chunk">greater engagement.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 만약 종속변수 또는 목적이 사이트 체류 시간이라면 / 그렇다면 당신은 쉽게 알아낼 수 있다 / 어떤 웹사이트 구성이 / 더 큰 참여로 이어지는지를.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>조건 if절 (직설법)</b> <span class="triangle">▶</span> <u>If</u> the dependent variable... is..., then you can... <span class="star">★</span> 단순 조건 (가정법 아님); 양쪽 절 현재시제; then은 강조용 부사</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>간접의문문 (which + 명사 + V)</b> <span class="triangle">▶</span> determine <u>which website configuration leads to</u>... <span class="star">★</span> which가 명사를 수식하면서 동시에 주어 역할; 동사 leads의 주어</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>lead to + 명사 (~로 이어지다)</b> <span class="triangle">▶</span> <u>leads to</u> greater engagement <span class="star">★</span> 자동사 + to (결과); cause, result in과 유사</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>부사 readily (쉽게, 즉시)</b> <span class="triangle">▶</span> can <u>readily</u> determine <span class="star">★</span> = easily; 조동사 + 부사 + 동사원형 어순</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑤</span></div>
+          <div class="eng-box">The overt/active lab-based experiment is most suited to studies seeking to determine psychological factors (though the lab can be virtual/online) and generally these are the preserve of academic inquiry.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">The overt/active lab-based experiment is most suited</span> <span class="slash">/</span> <span class="eng-chunk">to studies seeking to determine psychological factors</span> <span class="slash">/</span> <span class="eng-chunk">(though the lab can be virtual/online)</span> <span class="slash">/</span> <span class="eng-chunk">and generally these are the preserve of academic inquiry.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 드러나고 능동적인 실험실 기반 실험은 가장 적합하다 / 심리적 요인을 알아내려 하는 연구에 / (비록 그 실험실은 가상이거나 온라인일 수 있지만) / 그리고 일반적으로 이것들은 학술적 탐구의 영역이다.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>be suited to + 명사 (~에 적합하다)</b> <span class="triangle">▶</span> is most <u>suited to</u> studies <span class="star">★</span> 수동의 형용사 + to (전치사 고정); be suitable for와 비교</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>현재분사 후치수식 (seeking)</b> <span class="triangle">▶</span> studies <u>seeking</u> to determine... <span class="star">★</span> 명사 + V-ing (능동: ~하는); = studies which seek</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>seek + to부정사 (~하려고 시도하다)</b> <span class="triangle">▶</span> seeking <u>to determine</u> <span class="star">★</span> seek + to V; try와 유사</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>양보 접속사 though (비록 ~이지만)</b> <span class="triangle">▶</span> (<u>though</u> the lab can be virtual/online) <span class="star">★</span> 괄호 안 양보절로 보충 정보 제공</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>the preserve of (~의 영역·전유물)</b> <span class="triangle">▶</span> <u>the preserve of</u> academic inquiry <span class="star">★</span> 명사 preserve = 영역, 전유물 (대개 the X is the preserve of Y); 보존하다(v.)와 의미 구별</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑥</span></div>
+          <div class="eng-box">A company could employ a lab-based experiment to test differential reactions to two forms of packaging, for example.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">A company could employ a lab-based experiment</span> <span class="slash">/</span> <span class="eng-chunk">to test differential reactions</span> <span class="slash">/</span> <span class="eng-chunk">to two forms of packaging, for example.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 한 회사는 실험실 기반 실험을 사용할 수 있다 / 차별적 반응을 시험하기 위해 / 두 가지 형태의 포장에 대한 (예를 들어).</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>조동사 could (가능성·가정)</b> <span class="triangle">▶</span> A company <u>could employ</u>... <span class="star">★</span> 가정적 가능성 (~할 수도 있다); can보다 약한 추측</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>employ의 다의어 ('사용하다')</b> <span class="triangle">▶</span> <u>employ</u> a lab-based experiment <span class="star">★</span> '고용하다'가 아닌 '(방법·도구를) 사용하다'; = use, apply</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>to부정사 부사적 용법 (목적)</b> <span class="triangle">▶</span> <u>to test</u> differential reactions <span class="star">★</span> ~하기 위해; in order to/so as to로 강조 가능</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>reactions to + 명사 (~에 대한 반응)</b> <span class="triangle">▶</span> reactions <u>to</u> two forms of packaging <span class="star">★</span> reaction은 전치사 to 고정; response to와 동일 패턴</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑦</span></div>
+          <div class="eng-box">The problem with the lab experiment is that it tends to isolate a stimulus or effect.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">The problem with the lab experiment</span> <span class="slash">/</span> <span class="eng-chunk">is that it tends to isolate</span> <span class="slash">/</span> <span class="eng-chunk">a stimulus or effect.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 실험실 실험의 문제점은 / 그것이 고립시키는 경향이 있다는 것이다 / 자극이나 효과를.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>The problem with A is that S+V (A의 문제점은 ~이다)</b> <span class="triangle">▶</span> <u>The problem with</u> the lab experiment <u>is that</u>... <span class="star">★</span> with + 명사 (대상); that 명사절 (보어)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>tend + to부정사 (~하는 경향이 있다)</b> <span class="triangle">▶</span> it <u>tends to isolate</u> <span class="star">★</span> tend는 to부정사 목적어; tendency (n.)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>대명사 it (= the lab experiment)</b> <span class="triangle">▶</span> <u>it</u> tends to isolate... <span class="star">★</span> 단수 명사를 받음; 지시대상 정확히 파악</div>
+          </div>
+        </div>
+
+        <div class="sentence-block">
+          <div><span class="sent-num">⑧</span></div>
+          <div class="eng-box">People make decisions and buy things in the real, noisy world where various other things influence and distract you.</div>
+          <div class="slash-reading">
+            <span class="eng-chunk">People make decisions and buy things</span> <span class="slash">/</span> <span class="eng-chunk">in the real, noisy world</span> <span class="slash">/</span> <span class="eng-chunk">where various other things</span> <span class="slash">/</span> <span class="eng-chunk">influence and distract you.</span>
+          </div>
+          <div class="direct-trans"><b>직독직해</b> 사람들은 결정을 내리고 물건을 산다 / 현실의, 시끄러운 세상 속에서 / 다양한 다른 것들이 / 영향을 주고 주의를 산만하게 하는.</div>
+          <div class="grammar-list">
+            <div class="g-item"><span class="diamond">◆</span> <b>동사 병렬 (make ~ and buy ~)</b> <span class="triangle">▶</span> <u>make</u> decisions <u>and</u> <u>buy</u> things <span class="star">★</span> 두 본동사의 병렬 (and + 동사원형)</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>관계부사 where (장소)</b> <span class="triangle">▶</span> the real, noisy world <u>where</u> various other things... <span class="star">★</span> 선행사(world) + where + 완전한 절; = in which</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>관계절 안 동사 병렬</b> <span class="triangle">▶</span> things <u>influence</u> and <u>distract</u> you <span class="star">★</span> 관계부사절 내 두 동사의 병렬; 둘 다 things를 주어로 받음</div>
+            <div class="g-item"><span class="diamond">◆</span> <b>현실 세계 강조 형용사 연속 (real, noisy)</b> <span class="triangle">▶</span> the <u>real, noisy</u> world <span class="star">★</span> 콤마로 연결된 두 형용사가 모두 world 수식; 실험실의 고립된 환경과 대비</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 핵심단어 -->
+      <div class="tab-content" id="t4c">
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="word">experiment</div><div class="meaning">실험</div><div class="pos">n./v.</div><div class="deriv">experimental (adj.)</div></div>
+          <div class="vocab-item"><div class="word">treatment</div><div class="meaning">처치 (실험에서 조작 변수)</div><div class="pos">n.</div><div class="deriv">treat (v.)</div></div>
+          <div class="vocab-item"><div class="word">variable</div><div class="meaning">변수</div><div class="pos">n./adj.</div><div class="deriv">vary (v.), variation (n.)</div></div>
+          <div class="vocab-item"><div class="word">stimulus</div><div class="meaning">자극 (pl. stimuli)</div><div class="pos">n.</div><div class="deriv">stimulate (v.), stimulation (n.)</div></div>
+          <div class="vocab-item"><div class="word">differential</div><div class="meaning">차별적인, 차이가 있는</div><div class="pos">adj.</div><div class="deriv">differ (v.), difference (n.)</div></div>
+          <div class="vocab-item"><div class="word">response</div><div class="meaning">반응, 응답</div><div class="pos">n.</div><div class="deriv">respond (v.), responsive (adj.)</div></div>
+          <div class="vocab-item"><div class="word">in order to V</div><div class="meaning">~하기 위해</div><div class="pos">phr.</div><div class="deriv">—</div></div>
+          <div class="vocab-item"><div class="word">configuration</div><div class="meaning">구성, 배치</div><div class="pos">n.</div><div class="deriv">configure (v.)</div></div>
+          <div class="vocab-item"><div class="word">covertly</div><div class="meaning">은밀하게, 비밀리에</div><div class="pos">adv.</div><div class="deriv">covert (adj.) ↔ overtly</div></div>
+          <div class="vocab-item"><div class="word">expose A to B</div><div class="meaning">A를 B에 노출시키다</div><div class="pos">phr.</div><div class="deriv">exposure (n.)</div></div>
+          <div class="vocab-item"><div class="word">dependent variable</div><div class="meaning">종속변수</div><div class="pos">n.phr.</div><div class="deriv">depend (v.) ↔ independent variable</div></div>
+          <div class="vocab-item"><div class="word">objective</div><div class="meaning">목적, 목표 / 객관적인</div><div class="pos">n./adj.</div><div class="deriv">object (n.)</div></div>
+          <div class="vocab-item"><div class="word">readily</div><div class="meaning">쉽게, 즉시</div><div class="pos">adv.</div><div class="deriv">ready (adj.)</div></div>
+          <div class="vocab-item"><div class="word">determine</div><div class="meaning">알아내다, 결정하다</div><div class="pos">v.</div><div class="deriv">determination (n.)</div></div>
+          <div class="vocab-item"><div class="word">engagement</div><div class="meaning">참여, 몰입</div><div class="pos">n.</div><div class="deriv">engage (v.), engaging (adj.)</div></div>
+          <div class="vocab-item"><div class="word">overt</div><div class="meaning">드러난, 공공연한</div><div class="pos">adj.</div><div class="deriv">overtly (adv.) ↔ covert</div></div>
+          <div class="vocab-item"><div class="word">lab-based</div><div class="meaning">실험실 기반의</div><div class="pos">adj.</div><div class="deriv">laboratory (n.)</div></div>
+          <div class="vocab-item"><div class="word">be suited to</div><div class="meaning">~에 적합하다</div><div class="pos">phr.</div><div class="deriv">suit (v./n.), suitable (adj.)</div></div>
+          <div class="vocab-item"><div class="word">seek to V</div><div class="meaning">~하려고 시도하다</div><div class="pos">phr.</div><div class="deriv">seek (v.) — sought — sought</div></div>
+          <div class="vocab-item"><div class="word">psychological</div><div class="meaning">심리적인</div><div class="pos">adj.</div><div class="deriv">psychology (n.), psychologist (n.)</div></div>
+          <div class="vocab-item"><div class="word">preserve</div><div class="meaning">(명사) 영역, 전유물 / (동사) 보존하다</div><div class="pos">n./v.</div><div class="deriv">preservation (n.)</div></div>
+          <div class="vocab-item"><div class="word">academic inquiry</div><div class="meaning">학술적 탐구</div><div class="pos">n.phr.</div><div class="deriv">inquire (v.)</div></div>
+          <div class="vocab-item"><div class="word">employ</div><div class="meaning">사용하다 (방법·도구) / 고용하다</div><div class="pos">v.</div><div class="deriv">employment (n.), employee (n.)</div></div>
+          <div class="vocab-item"><div class="word">packaging</div><div class="meaning">포장</div><div class="pos">n.</div><div class="deriv">package (n./v.)</div></div>
+          <div class="vocab-item"><div class="word">isolate</div><div class="meaning">고립시키다, 분리하다</div><div class="pos">v.</div><div class="deriv">isolation (n.), isolated (adj.)</div></div>
+          <div class="vocab-item"><div class="word">tend to V</div><div class="meaning">~하는 경향이 있다</div><div class="pos">phr.</div><div class="deriv">tendency (n.)</div></div>
+          <div class="vocab-item"><div class="word">influence</div><div class="meaning">영향을 주다 / 영향</div><div class="pos">v./n.</div><div class="deriv">influential (adj.)</div></div>
+          <div class="vocab-item"><div class="word">distract</div><div class="meaning">주의를 산만하게 하다</div><div class="pos">v.</div><div class="deriv">distraction (n.), distracted (adj.)</div></div>
+        </div>
+      </div>
+
+      <!-- 전문해석 -->
+      <div class="tab-content" id="t4d">
+        <div class="translation-box">
+          실험은 '처치(treatments)'의 효과를 검증하는 데 적합한 방법이다. 여기서 처치란 차별적 반응을 시험하기 위해 연구자가 바꾸는 변수나 자극을 의미한다. 예를 들어, 사용자들이 어떤 웹페이지 구성을 선호하는지를 알고자 한다고 하자. 이는 단순히 두 집단을 두 가지 다른 구성에 무작위로 노출시킴으로써 온라인에서 은밀하게 진행될 수 있다. 만약 종속변수, 즉 측정 목표가 사이트 체류 시간이라면, 어떤 웹사이트 구성이 더 큰 참여로 이어지는지를 쉽게 알아낼 수 있다. 반면에, 드러나고 능동적인 실험실 기반 실험은 심리적 요인을 알아내려는 연구에 가장 적합하며(실험실이 가상 공간이나 온라인이어도 무방하다), 일반적으로 이러한 실험은 학술 탐구의 영역이다. 물론 한 회사가 두 가지 형태의 포장에 대한 차별적 반응을 시험하기 위해 실험실 기반 실험을 사용할 수도 있다. 그러나 실험실 실험의 문제점은 그것이 자극이나 효과를 고립시키는 경향이 있다는 점이다. 사람들은 결국 다양한 다른 것들이 영향을 주고 주의를 분산시키는 현실의 시끄러운 세상 속에서 결정을 내리고 물건을 산다.
+        </div>
+      </div>
+
+      <!-- 주제·요지 -->
+      <div class="tab-content" id="t4e">
+        <div class="theme-card">
+          <div class="label">THEME · 주제</div>
+          <div class="content">현장(온라인) 실험과 실험실 실험의 차이 및 각각의 강점과 한계</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">MAIN IDEA · 요지</div>
+          <div class="content">실험은 처치의 효과를 검증하는 도구로, 온라인 A/B 테스트 같은 은밀한 현장 실험과 심리 요인을 연구하는 드러난 실험실 실험이 있는데, 실험실 실험은 자극을 고립시키므로 실제 소비 환경의 복잡함을 반영하지 못한다는 한계가 있다.</div>
+        </div>
+        <div class="theme-card">
+          <div class="label">STRUCTURE · 구조 흐름</div>
+          <div class="structure-flow">
+            <div class="step"><b>도입 (①)</b>실험 = 처치(treatment)의 효과를 검증하는 도구</div>
+            <div class="step"><b>현장 실험 예시 (②~④)</b>온라인 A/B 테스트: 은밀하고 단순한 무작위 노출</div>
+            <div class="step"><b>실험실 실험 (⑤~⑥)</b>심리 요인 연구·학술 영역; 회사도 포장 비교 등에 활용</div>
+            <div class="step"><b>한계 (⑦~⑧)</b>실험실은 자극을 고립; 현실은 시끄러운 다요인 환경</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 배경지식 -->
+      <div class="tab-content" id="t4f">
+        <div class="bg-card">
+          <h4>🅰️🅱️ A/B 테스트와 디지털 마케팅</h4>
+          <p>본문 ③번 문장이 묘사하는 '은밀한 온라인 실험'은 사실상 A/B 테스트(A/B testing)다. 사용자들을 두 집단으로 무작위 분할하여 한 집단에는 버전 A, 다른 집단에는 버전 B를 보여 주고, 어느 쪽이 더 좋은 반응(클릭율, 체류시간, 구매전환율 등)을 얻는지 비교하는 기법이다. 구글·메타·아마존 같은 IT 기업은 매년 수만 건의 A/B 테스트를 동시 진행한다. 사용자는 자신이 실험 대상이라는 사실을 모르는 채 참여하므로 본문이 'covertly(은밀히)'라는 표현을 쓴 것이다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🔬 실험실 실험과 외적 타당도 (External Validity)</h4>
+          <p>실험실 실험은 변수를 엄격히 통제하여 인과관계를 명확히 보여 줄 수 있다는 강점(높은 내적 타당도, internal validity)이 있다. 그러나 실험실의 인공적 환경에서 얻은 결과가 실제 세상에서도 동일하게 나타날지는 보장하기 어렵다(낮은 외적 타당도). 본문 ⑦~⑧번 문장이 지적하는 '자극의 고립(isolate a stimulus)'이 바로 이 외적 타당도 문제다. 예를 들어 실험실에서 광고를 본 소비자의 반응과, 스마트폰을 보며 지하철에서 동일 광고를 흘끗 본 반응이 같을 리 없다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>👁️ 호손 효과 (Hawthorne Effect)</h4>
+          <p>실험실 실험의 또 다른 함정은 호손 효과다. 1920~30년대 미국 호손 공장에서 노동 조건과 생산성의 관계를 실험하던 중, 어떤 조건을 바꾸어도 생산성이 향상되는 현상이 관찰됐다. 알고 보니 '관찰되고 있다는 사실' 자체가 노동자의 행동을 바꾼 것이었다. 따라서 본문이 강조하는 'overt(드러난, 능동적)' 실험은 참여자가 자신이 관찰됨을 안다는 점에서 자연스러운 행동을 왜곡할 위험이 있다. 반면 'covert(은밀한)' 온라인 실험은 이 효과로부터 비교적 자유롭다.</p>
+        </div>
+        <div class="bg-card">
+          <h4>🌍 현장실험과 자연실험 — 노벨경제학상</h4>
+          <p>현실 세계의 복잡한 환경에서 직접 실험을 설계해 사회·경제 정책을 검증하는 '현장실험(field experiment)' 기법은 2019년 노벨경제학상의 주제였다. 수상자 Banerjee, Duflo, Kremer는 빈곤 퇴치 정책의 효과를 무작위 통제 실험(RCT)으로 측정해, 어떤 개입이 실제로 효과를 내는지를 증거 기반으로 입증했다. 본문이 묘사하는 '현장 vs 실험실' 구도는 사회과학 방법론 전체의 핵심 논쟁점이며, 두 방식의 장단점을 어떻게 결합하느냐가 현대 연구의 큰 과제다.</p>
+        </div>
+      </div>
+
+      <!-- 변형문제 -->
+      <div class="tab-content" id="t4g">
+        <!-- Q1: 주제 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">1번</span>다음 글의 주제로 가장 적절한 것은?</div>
+          <button class="quiz-choice" onclick="check(4,1,1,false)"><span class="opt-num">①</span>실험 설계에서 종속변수와 독립변수를 구분하는 방법</button>
+          <button class="quiz-choice" onclick="check(4,1,2,false)"><span class="opt-num">②</span>현대 기업이 마케팅에 실험을 도입해야 하는 이유</button>
+          <button class="quiz-choice" onclick="check(4,1,3,true)"><span class="opt-num">③</span>현장 실험과 실험실 실험의 차이 및 실험실 실험의 한계</button>
+          <button class="quiz-choice" onclick="check(4,1,4,false)"><span class="opt-num">④</span>온라인 사용자 행동을 측정하는 다양한 통계 기법</button>
+          <button class="quiz-choice" onclick="check(4,1,5,false)"><span class="opt-num">⑤</span>학술 연구와 상업 연구의 윤리적 경계</button>
+          <div class="quiz-feedback" id="fb-q4-1"></div>
+          <button class="reset-btn" onclick="resetQuiz(4,1)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q2: 빈칸 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">2번</span>다음 글의 빈칸에 들어갈 말로 가장 적절한 것은?</div>
+          <div class="quiz-passage">The problem with the lab experiment is that it tends to ______ a stimulus or effect. People make decisions and buy things in the real, noisy world where various other things influence and distract you.</div>
+          <button class="quiz-choice" onclick="check(4,2,1,false)"><span class="opt-num">①</span>amplify</button>
+          <button class="quiz-choice" onclick="check(4,2,2,false)"><span class="opt-num">②</span>combine</button>
+          <button class="quiz-choice" onclick="check(4,2,3,true)"><span class="opt-num">③</span>isolate</button>
+          <button class="quiz-choice" onclick="check(4,2,4,false)"><span class="opt-num">④</span>create</button>
+          <button class="quiz-choice" onclick="check(4,2,5,false)"><span class="opt-num">⑤</span>repeat</button>
+          <div class="quiz-feedback" id="fb-q4-2"></div>
+          <button class="reset-btn" onclick="resetQuiz(4,2)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q3: 어법 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">3번</span>다음 글의 밑줄 친 부분 중 어법상 틀린 것은?</div>
+          <div class="quiz-passage">Experiments are good ① <u>for testing</u> the effects of treatments. This can be done covertly online by ② <u>simply</u> randomly ③ <u>exposing</u> two groups to the two different configurations. The lab-based experiment is most suited to studies ④ <u>seek</u> to determine psychological factors. A company could ⑤ <u>employ</u> a lab-based experiment to test differential reactions to two forms of packaging.</div>
+          <button class="quiz-choice" onclick="check(4,3,1,false)"><span class="opt-num">①</span>for testing</button>
+          <button class="quiz-choice" onclick="check(4,3,2,false)"><span class="opt-num">②</span>simply</button>
+          <button class="quiz-choice" onclick="check(4,3,3,false)"><span class="opt-num">③</span>exposing</button>
+          <button class="quiz-choice" onclick="check(4,3,4,true)"><span class="opt-num">④</span>seek</button>
+          <button class="quiz-choice" onclick="check(4,3,5,false)"><span class="opt-num">⑤</span>employ</button>
+          <div class="quiz-feedback" id="fb-q4-3"></div>
+          <button class="reset-btn" onclick="resetQuiz(4,3)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q4: 불일치 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">4번</span>다음 글의 내용과 일치하지 않는 것은?</div>
+          <button class="quiz-choice" onclick="check(4,4,1,false)"><span class="opt-num">①</span>실험은 처치(treatment)의 효과를 검증하는 도구이다.</button>
+          <button class="quiz-choice" onclick="check(4,4,2,false)"><span class="opt-num">②</span>웹페이지 구성 선호도는 온라인에서 은밀하게 테스트될 수 있다.</button>
+          <button class="quiz-choice" onclick="check(4,4,3,false)"><span class="opt-num">③</span>실험실 실험은 일반적으로 학술 탐구의 영역이다.</button>
+          <button class="quiz-choice" onclick="check(4,4,4,true)"><span class="opt-num">④</span>실험실 실험은 자극을 고립시키지 않고 현실 환경을 그대로 반영한다.</button>
+          <button class="quiz-choice" onclick="check(4,4,5,false)"><span class="opt-num">⑤</span>기업은 포장에 대한 반응 차이를 실험실 실험으로 시험할 수 있다.</button>
+          <div class="quiz-feedback" id="fb-q4-4"></div>
+          <button class="reset-btn" onclick="resetQuiz(4,4)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- Q5: 순서 -->
+        <div class="quiz-block">
+          <div class="quiz-q"><span class="qnum">5번</span>주어진 글 다음에 이어질 글의 순서로 가장 적절한 것은?</div>
+          <div class="quiz-passage"><b>(주어진 글)</b> Experiments are good for testing the effects of &lsquo;treatments&rsquo;; a treatment being the variable or stimulus that you are changing in order to test a differential response.<br><br>
+          <b>(A)</b> The overt/active lab-based experiment is most suited to studies seeking to determine psychological factors and generally these are the preserve of academic inquiry. A company could employ a lab-based experiment to test differential reactions to two forms of packaging, for example.<br><br>
+          <b>(B)</b> For example, which web page configuration users prefer. This can be done covertly online by simply randomly exposing two groups to the two different configurations. If the dependent variable/objective is time on site then you can readily determine which website configuration leads to greater engagement.<br><br>
+          <b>(C)</b> The problem with the lab experiment is that it tends to isolate a stimulus or effect. People make decisions and buy things in the real, noisy world where various other things influence and distract you.</div>
+          <button class="quiz-choice" onclick="check(4,5,1,false)"><span class="opt-num">①</span>(A) - (B) - (C)</button>
+          <button class="quiz-choice" onclick="check(4,5,2,false)"><span class="opt-num">②</span>(A) - (C) - (B)</button>
+          <button class="quiz-choice" onclick="check(4,5,3,true)"><span class="opt-num">③</span>(B) - (A) - (C)</button>
+          <button class="quiz-choice" onclick="check(4,5,4,false)"><span class="opt-num">④</span>(B) - (C) - (A)</button>
+          <button class="quiz-choice" onclick="check(4,5,5,false)"><span class="opt-num">⑤</span>(C) - (B) - (A)</button>
+          <div class="quiz-feedback" id="fb-q4-5"></div>
+          <button class="reset-btn" onclick="resetQuiz(4,5)">↺ 다시 풀기</button>
+        </div>
+
+        <!-- 서술형 1 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 1</span>다음 빈칸에 들어갈 알맞은 말을 본문에서 찾아 쓰시오.</div>
+          <div class="quiz-passage">An online A/B test can be done (1) ______ by exposing two groups to different configurations, but a lab-based experiment tends to (2) ______ a stimulus or effect from the real world.</div>
+          <div class="cond">조건: (1)과 (2)에 들어갈 단어를 본문에서 찾아 한 단어씩 쓸 것.</div>
+          <textarea placeholder="(1) ______________________&#10;(2) ______________________"></textarea>
+          <button class="toggle-ans" onclick="toggleAns(4,1)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans4-1">
+            <b>모범답안:</b> (1) covertly &nbsp;&nbsp; (2) isolate<br>
+            <b>해설:</b> ③번 문장 "This can be done covertly online"에서 (1) covertly, ⑦번 문장 "it tends to isolate a stimulus or effect"에서 (2) isolate를 찾을 수 있다.
+          </div>
+        </div>
+
+        <!-- 서술형 2 -->
+        <div class="essay-block">
+          <div class="quiz-q"><span class="qnum">서술형 2</span>본문에 따르면, 실험실 실험(lab experiment)의 가장 큰 한계점은 무엇인지 영어로 서술하시오.</div>
+          <div class="cond">조건: 본문 ⑦~⑧번 문장의 내용을 바탕으로, 완전한 영어 문장으로 30~40단어 이내로 작성할 것.</div>
+          <textarea placeholder="Write your answer in English (30~40 words)..."></textarea>
+          <button class="toggle-ans" onclick="toggleAns(4,2)">모범답안 보기 ▼</button>
+          <div class="model-ans" id="ans4-2">
+            <b>모범답안:</b> The lab experiment tends to isolate a single stimulus or effect, so it fails to reflect the real, noisy world where many other factors actually influence people&#39;s decisions and distract them. (31 words)<br>
+            <b>해설:</b> 실험실은 통제된 환경에서 한 자극만 고립시키므로, 다요인이 작용하는 실제 의사결정 환경을 반영하지 못한다는 점이 핵심 한계다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+function showPassage(n) {
+  var passages = document.getElementsByClassName('passage');
+  for (var i = 0; i < passages.length; i++) {
+    passages[i].classList.remove('active');
+  }
+  var target = document.getElementById('p' + n);
+  if (target) target.classList.add('active');
+
+  var lis = document.querySelectorAll('.sidebar li');
+  for (var j = 0; j < lis.length; j++) {
+    lis[j].classList.remove('active');
+  }
+  if (lis[n-1]) lis[n-1].classList.add('active');
+
+  var covers = document.getElementsByClassName('cover');
+  for (var k = 0; k < covers.length; k++) {
+    covers[k].style.display = 'none';
+  }
+
+  showTab(n, 'a');
+  window.scrollTo(0, 0);
+}
+
+function showTab(p, t) {
+  var tabMap = {'a':0, 'b':1, 'c':2, 'd':3, 'e':4, 'f':5, 'g':6};
+  var section = document.getElementById('p' + p);
+  if (!section) return;
+  var tabs = section.getElementsByClassName('tab');
+  var contents = section.getElementsByClassName('tab-content');
+  for (var i = 0; i < tabs.length; i++) { tabs[i].classList.remove('active'); }
+  for (var j = 0; j < contents.length; j++) { contents[j].classList.remove('active'); }
+  var idx = tabMap[t];
+  if (tabs[idx]) tabs[idx].classList.add('active');
+  var content = document.getElementById('t' + p + t);
+  if (content) content.classList.add('active');
+}
+
+function check(p, q, choice, isCorrect) {
+  var fbId = 'fb-q' + p + '-' + q;
+  var fb = document.getElementById(fbId);
+  if (!fb) return;
+  var block = fb.parentElement;
+  var choices = block.getElementsByClassName('quiz-choice');
+
+  for (var i = 0; i < choices.length; i++) {
+    choices[i].disabled = true;
+  }
+
+  var clicked = choices[choice - 1];
+  if (isCorrect) {
+    clicked.classList.add('correct');
+    fb.className = 'quiz-feedback correct show';
+    fb.innerHTML = '<b>&#10003; 정답!</b> 잘 하셨습니다.';
+  } else {
+    clicked.classList.add('wrong');
+    for (var k = 0; k < choices.length; k++) {
+      var onclickAttr = choices[k].getAttribute('onclick') || '';
+      if (onclickAttr.indexOf('true') !== -1) {
+        choices[k].classList.add('correct');
+      }
+    }
+    fb.className = 'quiz-feedback wrong show';
+    fb.innerHTML = '<b>&#10007; 오답입니다.</b> 정답은 초록색으로 표시된 보기입니다. 본문을 다시 확인해 보세요.';
+  }
+}
+
+function resetQuiz(p, q) {
+  var fbId = 'fb-q' + p + '-' + q;
+  var fb = document.getElementById(fbId);
+  if (!fb) return;
+  var block = fb.parentElement;
+  var choices = block.getElementsByClassName('quiz-choice');
+  for (var i = 0; i < choices.length; i++) {
+    choices[i].classList.remove('correct');
+    choices[i].classList.remove('wrong');
+    choices[i].disabled = false;
+  }
+  fb.className = 'quiz-feedback';
+  fb.innerHTML = '';
+}
+
+function toggleAns(p, n) {
+  var ans = document.getElementById('ans' + p + '-' + n);
+  if (!ans) return;
+  if (ans.classList.contains('show')) {
+    ans.classList.remove('show');
+  } else {
+    ans.classList.add('show');
+  }
+}
+</script>
+</body>
+</html>
+
